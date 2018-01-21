@@ -1,19 +1,19 @@
 # Set work directory for local system
-setwd("C:\\Users\\stack\\Dropbox\\Berkeley\\Spring_2018\\Lab 1\\Cancer_EDA")
+setwd("C:\\Users\\stack\\Dropbox\\Berkeley\\Spring_2018\\Lab 1\\Cancer_EDA\\w203.4_lab1")
 
 # Import car
 library(car)
 
 # Import Data 
-df = read.csv("cancer.csv")
+df <- read.csv("cancer.csv")
 
 summary(df)
 
 # Derive outcome CaseRate from abgAnnCount to normalize for population
 
-df["CaseRate"] = (df$avgAnnCount/df$popEst2015) * 100000
+df["CaseRate"] <- (df$avgAnnCount/df$popEst2015) * 100000
 
-df["RaceCat"] = apply(df[,c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")], 1, function(x) {
+df["RaceCat"] <- apply(df[,c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")], 1, function(x) {
     check = max(x)
     if (check == x[1]) {
       return <- "Black"
@@ -30,22 +30,22 @@ barplot(prop.table(table(df$RaceCat)), ylim=c(0,1),
         ylab="% Frequency", xlab="Race Category",
         main="Distribution of Race")
 
-?barplot
+
 # Create groupings of columns I want to look at
-outcome = c("Geography", "CaseRate", "deathRate")
+outcome <- c("Geography", "CaseRate", "deathRate")
 
-pop = c("popEst2015", "BirthRate")
+pop <- c("popEst2015", "BirthRate")
 
-age = c("MedianAge", "MedianAgeFemale", "MedianAgeMale")
+age <- c("MedianAge", "MedianAgeFemale", "MedianAgeMale")
 
-household = c("AvgHouseholdSize", "PercentMarried")
+household <- c("AvgHouseholdSize", "PercentMarried")
 
-race = c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")
+race <- c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")
 
 ###########################
 # Population vs. outcomes #
 ###########################
-df_pop = df[df$CaseRate <= 2000,c(outcome,pop)]
+df_pop <- df[df$CaseRate <= 2000,c(outcome,pop)]
 
 summary(df_pop)
 
@@ -67,8 +67,8 @@ cor(df_pop[, c("deathRate", "popEst2015", "BirthRate")])
 # Age vs. outcomes #
 ####################
 
-df_age = df[df$CaseRate <= 2000,c(outcome,age)]
-df_age2 = df[df$CaseRate > 2000,c(outcome,age)]
+df_age <- df[df$CaseRate <= 2000,c(outcome,age)]
+df_age2 <- df[df$CaseRate > 2000,c(outcome,age)]
 
 summary(df_age)
 
@@ -105,7 +105,7 @@ cor(df_age[, c("deathRate", "MedianAgeFemale", "MedianAgeMale")])
 # Households vs. outcomes #
 ###########################
 
-df_house = df[df$CaseRate <= 2000,c(outcome, household)]
+df_house <- df[df$CaseRate <= 2000,c(outcome, household)]
 
 summary(df_house)
 
@@ -121,7 +121,7 @@ cor(df_house[, c("CaseRate", "AvgHouseholdSize", "PercentMarried")])
 # Race vs. outcomes #
 #####################
 
-df_race = df[df$CaseRate <= 2000,c(outcome, race)]
+df_race <- df[df$CaseRate <= 2000,c(outcome, race)]
 
 
 summary(df_race)
