@@ -1,0 +1,579 @@
+---
+title: "Cancer Mortality Exploration"
+author: "w203 Teaching Team"
+output:
+  pdf_document: default
+---
+
+
+# Introduction
+
+In this lab, imagine that your team is hired by a health government agency. They would like to understand factors that predict cancer mortality rates, with the ultimate aim of identifying communities for social interventions, and of understanding which interventions are likely to have the most impact.  Your team was hired to perform an exploratory analysis to help the agency address their goals.
+
+
+# Data
+
+You are given a dataset for a selection of US counties, **"cancer.csv"**.  The dependent (or target) variable in this data is named "deathRate".
+
+```{r libraries}
+library(car)
+library(rmarkdown)
+```
+
+
+Read in File
+```{r}
+df <- read.csv('cancer.csv', sep = ',')
+
+```
+
+
+```{r dimensions}
+class(df) # dimensions are 3047 rows x 30 columns
+dim(df) # dimensions of the data set
+```
+
+#proposing new varaibles
+The cancer.csv has 30 columns and 3047 observations. In additionm, these additional variables were created.
+
+| Variable Name        | Variable Description                                                       |
+|----------------------|----------------------------------------------------------------------------|
+| avgAnnCount_log      | log(avgAnnCount)                                                           |
+| popEst2015_log       | log(popEst2015)                                                            |
+| binnedInc_log        | PctWhite) + PctBlack+ PctAsian + PctOtherRace                              |
+| pct_pop_sum          | % of county residents living below the poverty line                        |
+| avgAnnCt_rate        | (avgAnnCount/df$popEst2015)*100000                                         |
+| avgAnnCt_rate_log    | log(avgAnnCt_rate)                                                         |
+| death_avgAnnCt_ratio | deathRate/avgAnnCt_rate                                                    |
+
+
+```{r new variables}
+
+df$popEst2015 <- as.numeric(df$popEst2015) # changed to numeric because scatterplotMatrix had issues with integer
+df$binnedInc <- as.numeric(df$popEst2015)  # changed to numeric because scatterplotMatrix had issues with integer
+
+
+df$avgAnnCount_log <- log(df$avgAnnCount) #log
+df$popEst2015_log <- log(df$popEst2015) # log
+df$binnedInc_log <- log(df$binnedInc) #log
+df$pct_pop_sum <- round(df$PctWhite) + round(df$PctBlack)+ round(df$PctAsian) + round(df$PctOtherRace)#supposed to = 1 but most do not
+df$avgAnnCt_rate <-  (df$avgAnnCount/df$popEst2015)*100000  # incidence rate per 100,000 which is same units as death rate
+df$avgAnnCt_rate_log <-  log(df$avgAnnCt_rate) #log 
+df$death_avgAnnCt_ratio <- df$deathRate/df$avgAnnCt_rate  # low rates may mean good cancer interventions in place
+```
+
+Summary function identified some issues:
+1. PctEmployed16_Over colum has 2285 missing data
+2. death_avgAnnCt_ratio column  > 1 as seen by Max >1.806990; There are 4 obesrvations that meet this criterion
+```{r}
+summary(df) 
+# note: PctEmployed16_Over has 2285 missing data
+# some have are great death_avgAnnCt_ratio  > 1 as seen by Max >1.806990 
+```
+
+Total death_avgAnnCt_ratio column  > 1 
+```{r}
+sum((df$death_avgAnnCt_ratio>1.0), na.rm=TRUE) 
+```
+
+```{r}
+df_deat
+```
+
+
+
+When assessing the variables there are categories that emerge
+
+1. Outcomes : DeathRate; avgAnnCt_rate, avgAnnCt_rate_log, death_avgAnnCt_ratioby county
+
+2. Basic demographics:popEst2015, MedianAge, MedianAgeMale, MedianAgeFemale, AvgHouseholdSize, PercentMarried, BirthRate
+  2.1. Ethnicity: PctWhite, PctAsian, PctAsian, PctOtherRace
+  
+3. Education: PctNoHS18_24, PctHS18_24, PctSomeCol18_24, PctBachDeg18_24, PctHS25_Over, PctBachDeg25_Over
+4. Insurance: PctPrivateCoverage, PctEmpPrivCoverage, PctPublicCoverage
+
+5. income level : medIncome , povertyPercent, binnedInc
+6. Employment :PctEmployed16_Over, PctUnemployed16_Over
+
+
+
+
+
+
+```{r}
+str(df) #names of columns and variable types
+```
+
+
+## Age - deathRate
+Median Age has dubious data. 
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
+```
+## Age - Incidence rate
+
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate  + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
+```
+## Age - log Incidence rate 
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log   + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
+```
+## Age - Death / Incidence rate ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio   + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
+```
+
+
+## Correlations by Age Death rate
+```{r}
+cor(df[, c("deathRate", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use = "complete.obs")
+```
+## by Age incident rate
+```{r}
+cor(df[, c("avgAnnCt_rate", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use = "complete.obs")
+```
+## Age - log Incidence rate
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use = "complete.obs")
+```
+
+## Age - Death / Incidence rate ratio
+
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use = "complete.obs")
+```
+
+
+## Ethnicity by death rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
+```
+
+## Ethnicity by incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
+```
+
+
+## Ethnicity by Log incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
+```
+
+
+## Ethnicity by death/incidence ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
+```
+
+
+
+
+## Correlations by Ethnicity
+```{r}
+cor(df[, c("deathRate", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], use = "complete.obs")
+```
+## Correlations by Ethnicity by incidence
+```{r}
+cor(df[, c("avgAnnCt_rate", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], use = "complete.obs")
+```
+## Correlations by Ethnicity by Log incidence
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], use = "complete.obs")
+```
+## Correlations by ## Ethnicity by death/incidence ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], use = "complete.obs")
+```
+
+## population BirthRate and Household size by death rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate +log(popEst2015) +  BirthRate + AvgHouseholdSize  ,diagonal=c("histogram"))
+```
+
+## BirthRate and Household size by incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate +popEst2015_log +  BirthRate + AvgHouseholdSize ,diagonal=c("histogram"))
+```
+## BirthRate and Household size by Log incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log +popEst2015_log +  BirthRate + AvgHouseholdSize ,diagonal=c("histogram"))
+```
+## BirthRate and Household size by death / incidence ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio +popEst2015_log +  BirthRate + AvgHouseholdSize ,diagonal=c("histogram"))
+```
+
+
+## Correlations by Population, BirthRate and Household size - death rate
+```{r}
+cor(df[, c("deathRate", "popEst2015_log",  "BirthRate", "AvgHouseholdSize")], use = "complete.obs")
+```
+## Correlations by Population, BirthRate and Household size - incidence rate
+
+```{r}
+cor(df[, c("avgAnnCt_rate", "popEst2015_log",  "BirthRate", "AvgHouseholdSize")], use = "complete.obs")
+```
+## Correlations by Population, BirthRate and Household size - Log incidence rate
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "popEst2015_log",  "BirthRate", "AvgHouseholdSize")], use = "complete.obs")
+```
+
+## Correlations by Population, BirthRate and Household size - death /incidence ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "popEst2015_log",  "BirthRate", "AvgHouseholdSize")], use = "complete.obs")
+```
+
+## Marital Status by death rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+```
+
+## Marital Status by incidence rate
+```{r}
+scatterplotMatrix( data=df, ~log(avgAnnCt_rate) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+```
+## Marital Status by log incidence rate
+```{r}
+scatterplotMatrix( data=df, ~log(avgAnnCt_rate_log) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+```
+
+## Marital Status by death / incidence ratio
+```{r}
+scatterplotMatrix( data=df, ~log(death_avgAnnCt_ratio) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+```
+
+
+
+## Correlations by Marital Status - Death Rates
+```{r}
+cor(df[, c("deathRate", "PercentMarried",  "PctMarriedHouseholds")], use = "complete.obs")
+```
+
+## Correlations by Marital Status - Incidence Rates
+```{r}
+cor(df[, c("avgAnnCt_rate", "PercentMarried",  "PctMarriedHouseholds")], use = "complete.obs")
+```
+
+## Correlations by Marital Status - Log Incidence Rates
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "PercentMarried",  "PctMarriedHouseholds")], use = "complete.obs")
+```
+
+## Correlations by Marital Status - Death/incidence ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "PercentMarried",  "PctMarriedHouseholds")], use = "complete.obs")
+```
+
+
+# Education
+## Education levels of 18-14 years old by death rate
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
+```
+ 
+## Education levels of 18-14 years old by Incidence Rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
+```
+## Education levels of 18-14 years old by Log Incidence Rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
+```
+## Education levels of 18-14 years old by Death/Incidence Ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
+```
+
+
+
+
+## Correlations by Education of 18-14 years old by Death Rate
+```{r}
+cor(df[, c("deathRate", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
+```
+
+## Correlations by Education of 18-14 years old by Incidence Rate
+```{r}
+cor(df[, c("avgAnnCt_rate", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
+```
+## Correlations by Education of 18-14 years old by Log Incidence Rate
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
+```
+
+## Correlations by Education of 18-14 years old by Death/Incidence Ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
+```
+
+
+## Education levels of 25 years old or older death rate
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctHS25_Over+ PctBachDeg25_Over, diagonal=c("histogram"))
+```
+## Education levels of 25 years old or older Incidence rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + PctHS25_Over+ PctBachDeg25_Over,diagonal=c("histogram"))
+```
+
+## Education levels of 25 years old or older log Incidence rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + PctHS25_Over+ PctBachDeg25_Over,diagonal=c("histogram"))
+```
+## Education levels of 25 years old or older death/Incidence ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + PctHS25_Over+ PctBachDeg25_Over,diagonal=c("histogram"))
+```
+
+## Correlations by Education levels of 25 years old or older  - Death Rate
+```{r}
+cor(df[, c("deathRate", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
+```
+## Correlations by Education levels of 25 years old or older  - Incidence Rate
+```{r}
+cor(df[, c("avgAnnCt_rate", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
+```
+
+## Correlations by Education levels of 25 years old or older  - Log Incidence Rate
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
+```
+
+
+## Correlations by Education levels of 25 years old or older  - death/Incidence Ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
+```
+
+
+# Insurance
+## Insuranceby death rate
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram"))
+```
+## Insurance by Incidence Rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
+
+```
+## Insurance by Log Incidence Rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCount_log + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
+
+```
+## Insurance by Death/Incidence Ratio
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCount_log + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
+
+```
+
+## Correlations by Insurance - death rate
+```{r}
+cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+## Correlations by Insurance - Incidence Rate
+```{r}
+cor(df[, c("avgAnnCt_rate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+## Correlations by Insurance - Log Incidence Rate
+```{r}
+cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+## Correlations by Insurance - Death/ Incidence Ratio
+```{r}
+cor(df[, c("avgAnnCt_rate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+
+#Employment 16 years or older by Death rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+
+#Employment 16 years or older by Incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+
+
+#Employment 16 years or older by  Log Incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+#Employment 16 years or older by Incidence
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+
+
+## Correlations by Employment 16 years or older - Death rate
+```{r}
+cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+## Correlations by Employment 16 years or older - incidence
+```{r}
+cor(df[, c("avgAnnCount_log", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+## Correlations by Employment 16 years or older - Log incidence
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+
+## Correlations by Employment 16 years or older - Death / incidence ratio
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+
+
+
+#Income by Death Rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome  + binnedInc_log ,diagonal=c("histogram"))
+```
+
+
+#Income by Incidence
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate + povertyPercent + medIncome  + binnedInc_log ,diagonal=c("histogram"))
+```
+
+#Income by Log Incidence 
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + povertyPercent + medIncome  + binnedInc_log ,diagonal=c("histogram"))
+```
+
+
+#Income by Death/ Incidence ratio
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + povertyPercent + medIncome  + binnedInc_log ,diagonal=c("histogram"))
+```
+
+## Correlations by Income - Death rate
+```{r}
+cor(df[, c("deathRate", "povertyPercent",  "medIncome", "binnedInc_log")], use = "complete.obs")
+```
+## Correlations by Income - Incidence rate
+```{r}
+cor(df[, c("avgAnnCt_rate", "povertyPercent",  "medIncome", "binnedInc_log")], use = "complete.obs")
+```
+## Correlations by Income - Incidence rate
+```{r}
+cor(df[, c("avgAnnCt_rate_log", "povertyPercent",  "medIncome", "binnedInc_log")], use = "complete.obs")
+```
+
+
+## Correlations by Income - Incidence rate
+```{r}
+cor(df[, c("death_avgAnnCt_ratio", "povertyPercent",  "medIncome", "binnedInc_log")], use = "complete.obs")
+```
+
+
+
+
+#Histograms Exploratory
+## Outcomes
+```{r}
+hist(df$deathRate, main= 'Death Rate',breaks =30, ylab = 'number of counties', xlab = 'death rate', labels = TRUE,  ,col = 'gray')
+```
+
+```{r}
+hist(df$avgAnnCt_rate, main= 'Incidence Rate',breaks =100, ylab = 'number of counties', xlab = 'Cancer Rate', labels = FALSE,  ,col = 'gray')
+```
+
+
+```{r}
+hist(df$avgAnnCt_rate_log, main= 'Log (Incidence Rate)',breaks =100, ylab = 'number of counties', xlab = 'Cancer Rate', labels = FALSE,  ,col = 'gray')
+```
+```{r}
+hist(df$death_avgAnnCt_ratio, main= 'death/Incidence Ratio)',breaks =100, ylab = 'number of counties', xlab = 'Cancer Rate', labels = FALSE,  ,col = 'gray')
+```
+
+
+# Independent Variables
+
+```{r}
+hist(df$MedianAge, main= 'Median Age',breaks =100, ylab = 'number of counties', xlab = 'Age (years)', labels = FALSE ,col = 'blue')
+```
+```{r}
+hist(df$MedianAgeMale, main= 'Median Age Male',breaks =30, ylab = 'number of counties', xlab = 'Age (years)', labels = TRUE,  ,col = 'blue')
+```
+```{r}
+hist(df$MedianAgeFemale, main= 'Median Age Female',breaks =30, ylab = 'number of counties', xlab = 'Age (years)', labels = TRUE,  ,col = 'blue')
+```
+```{r}
+hist(df$PctWhite, main= 'Population Percent White',breaks =100, ylab = 'number of counties', xlab = 'Percentage White', labels = FALSE,  ,col = 'dodgerblue')
+```
+```{r}
+hist(df$PctBlack, main= 'Population Percent Black',breaks =100, ylab = 'number of counties', xlab = 'Percentage Black', labels = FALSE,  ,col = 'dodgerblue')
+```
+```{r}
+hist(df$PctAsian, main= 'Population Percent Asian',breaks =100, ylab = 'number of counties', xlab = 'Percentage Asian', labels = FALSE,  ,col = 'dodgerblue')
+```
+```{r}
+hist(df$PctOtherRace, main= 'Population Percent Other Race',breaks =100, ylab = 'number of counties', xlab = 'Percentrage Other Race', labels = FALSE,  ,col = 'dodgerblue')
+```
+```{r}
+hist(df$PercentMarried, main= 'Population Percent Married',breaks =30, ylab = 'number of counties', xlab = 'Marital Status', labels = TRUE,  ,col = 'steelblue')
+```
+```{r}
+hist(df$PctMarriedHouseholds, main= 'Percent Households Married',breaks =30, ylab = 'number of counties', xlab = 'Marriage', labels = TRUE,  ,col = 'steelblue')
+```
+```{r}
+hist(df$BirthRate, main= 'County Birth Rate',breaks =30, ylab = 'number of counties', xlab = 'Birth Rate', labels = TRUE,  ,col = 'slategray')
+```
+
+*ISSUE*
+
+```{r}
+hist(df$AvgHouseholdSize, main= 'Average Household Size',breaks =30, ylab = 'number of counties', xlab = 'Persons', labels = TRUE,  ,col = 'slategray')
+```
+```{r}
+hist(df$popEst2015_log, main= 'Population Estimates in 2015',breaks =30, ylab = 'number of counties', xlab = 'Population', labels = TRUE,  ,col = 'slategray')
+```
+```{r}
+hist(df$PctNoHS18_24, main= 'Percent of 18-24 year olds - No High School',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'orange')
+```
+```{r}
+hist(df$PctHS18_24, main= 'Percent of 18-24 year olds - High School',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'orange')
+```
+```{r}
+hist(df$PctSomeCol18_24, main= 'Percent of 18-24 year olds - Some College',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'orange')
+```
+```{r}
+hist(df$PctBachDeg18_24, main= 'Percent of 18-24 year olds - Bachelor Degree',breaks =40, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'orange')
+```
+```{r}
+hist(df$PctHS25_Over, main= 'Percent of 25 year old or older - High School',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'tomato')
+```
+```{r}
+hist(df$PctBachDeg25_Over, main= 'Percent of 25 year old or older - Bachelor Degree',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'tomato')
+```
+```{r}
+hist(df$PctPrivateCoverage, main= 'Percent with Private Insurance Coverage',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'lightgoldenrod')
+```
+```{r}
+hist(df$PctEmpPrivCoverage, main= 'Percent with Employee  Insurance Coverage',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'lightgoldenrod')
+```
+```{r}
+hist(df$PctPublicCoverage, main= 'Percent with Public  Insurance Coverage',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'lightgoldenrod')
+```
+```{r}
+hist(df$PctEmployed16_Over, main= 'Percent Employed 16 years or older',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'seagreen1')
+```
+```{r}
+hist(df$PctUnemployed16_Over, main= 'Percent Unmployed 16 years or older',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'seagreen1')
+```
+```{r}
+hist(df$povertyPercent, main= 'Poverty Level',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'green4')
+```
+```{r}
+hist(df$medIncome, main= 'Median Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,  ,col = 'green3')
+```
+```{r}
+hist(df$binnedInc_log, main= 'Binned Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,col = 'green3')
+```
