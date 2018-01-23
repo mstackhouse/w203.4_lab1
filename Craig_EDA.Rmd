@@ -32,6 +32,9 @@ df <- read.csv('cancer.csv', sep = ',')
 class(df) # dimensions are 3047 rows x 30 columns
 dim(df) # dimensions of the data set
 ```
+```{r}
+str(df)
+```
 
 #proposing new varaibles
 The cancer.csv has 30 columns and 3047 observations. In additionm, these additional variables were created.
@@ -45,21 +48,49 @@ The cancer.csv has 30 columns and 3047 observations. In additionm, these additio
 | avgAnnCt_rate        | (avgAnnCount/df$popEst2015)*100000                                         |
 | avgAnnCt_rate_log    | log(avgAnnCt_rate)                                                         |
 | death_avgAnnCt_ratio | deathRate/avgAnnCt_rate                                                    |
-
+| RaceCat              | Identifies the race with the highest category                              |
 
 ```{r new variables}
 
 df$popEst2015 <- as.numeric(df$popEst2015) # changed to numeric because scatterplotMatrix had issues with integer
 df$binnedInc <- as.numeric(df$popEst2015)  # changed to numeric because scatterplotMatrix had issues with integer
 
-
-df$avgAnnCount_log <- log(df$avgAnnCount) #log
 df$popEst2015_log <- log(df$popEst2015) # log
 df$binnedInc_log <- log(df$binnedInc) #log
 df$pct_pop_sum <- round(df$PctWhite) + round(df$PctBlack)+ round(df$PctAsian) + round(df$PctOtherRace)#supposed to = 1 but most do not
 df$avgAnnCt_rate <-  (df$avgAnnCount/df$popEst2015)*100000  # incidence rate per 100,000 which is same units as death rate
 df$avgAnnCt_rate_log <-  log(df$avgAnnCt_rate) #log 
 df$death_avgAnnCt_ratio <- df$deathRate/df$avgAnnCt_rate  # low rates may mean good cancer interventions in place
+
+```
+```{r}
+df["RaceCat"] = apply(df[,c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")], 1, function(x) {
+    check = max(x)
+    if (check == x[1]) {
+      return <- "Black"
+    } else if (check == x[2]) {
+        return <- "Asian"
+    } else if (check == x[3]) {
+      return <-"White"
+    } else {
+      return <-"Other"
+    }
+})
+
+#attempted to write the percentage of the max ethnicity
+# df["RaceCatPct"] = apply(df[,c("PctBlack", "PctAsian", "PctWhite", "PctOtherRace")], 1, function(x) {
+#     check = max(x)
+#     if (check == x[1]) {
+#       return <- df$PctBlack
+#     } else if (check == x[2]) {
+#         return <- df$PctAsian
+#     } else if (check == x[3]) {
+#       return <-df$PctWhite
+#     } else {
+#       return <-df$PctOtherRace
+#     }
+# })
+
 ```
 
 Summary function identified some issues:
@@ -71,15 +102,110 @@ summary(df)
 # some have are great death_avgAnnCt_ratio  > 1 as seen by Max >1.806990 
 ```
 
+
+# Issues with Median Age
+## Issues : Median Age
+```{r}
+
+boxplot( df$MedianAge, 
+        main = "Median Age of counties in the USA",
+        ylab = "Median Age" , xlab  = paste(c('n = ' ,  sum(df$MedianAge<100, na.rm=TRUE) ), collapse= ""))
+```
+Total MedianAge   > 100 
+```{r}
+sum((df$MedianAge>100), na.rm=TRUE) 
+```
+
+Identify the counties with erroneous median age and update with average of MedianAgeMale and MedianAgeFemale
+```{r}
+
+df$MedianAge_gr100 = 0 #creates a new column to save the dubious data
+df$MedianAge_gr100[df$MedianAge>100]<- df$MedianAge[df$MedianAge>100]  # saves the dubious data
+df[df$MedianAge>100,c("Geography","MedianAge","MedianAgeMale", "MedianAgeFemale","MedianAge_gr100") ] #shows Age data before update
+
+```
+```{r}
+df$MedianAge[df$MedianAge>100]<- (df$MedianAgeMale[df$MedianAge>100] + df$MedianAgeFemale[df$MedianAge>100])/2  #update the Median Age
+df[df$MedianAge_gr100>100,c("Geography","MedianAge","MedianAgeMale", "MedianAgeFemale","MedianAge_gr100") ] # Check data
+```
+
+
+
+
+
+
+
+# Issues with AvgHouseholdSize
+## Issues : AvgHouseholdSize
+There are zeros which does not make any sense
+```{r}
+
+boxplot( df$AvgHouseholdSize, 
+        main = "AvgHouseholdSize of counties in the USA",
+        ylab = "AvgHouseholdSize" , xlab  = paste(c('n = ' ,  sum(df$AvgHouseholdSize>0, na.rm=TRUE) ), collapse= ""))
+```
+Total MedianAge   > 100 
+```{r}
+sum((df$AvgHouseholdSize<1), na.rm=TRUE) 
+```
+
+Identify the counties with erroneous median age and update with average of MedianAgeMale and MedianAgeFemale
+```{r}
+
+df$AvgHouseholdSize_zero = df$AvgHouseholdSize #creates a new column to save the dubious data
+df$AvgHouseholdSize_zero[df$AvgHouseholdSize<1]<- df$AvgHouseholdSize[df$AvgHouseholdSize<1]  # saves the dubious data
+df[df$AvgHouseholdSize<1,c("Geography","AvgHouseholdSize","AvgHouseholdSize_zero") ] #shows AvgHouseholdSize data before update
+
+```
+```{r}
+df$AvgHouseholdSize[df$AvgHouseholdSize<1]<- NA  #update the Median Age
+df[df$AvgHouseholdSize_zero<1,c("Geography","AvgHouseholdSize","AvgHouseholdSize_zero") ]  # Check data
+```
+
+```{r}
+
+boxplot( df$AvgHouseholdSize, 
+        main = "AvgHouseholdSize of counties in the USA",
+        ylab = "AvgHouseholdSize" , xlab  = paste(c('n = ' ,  sum(df$AvgHouseholdSize>0, na.rm=TRUE) ), collapse= ""))
+```
+
+
+# Issues with the data
+## Issues : Death / Incidence ratio
+```{r}
+sum((df$death_avgAnnCt_ratio>1.0), na.rm=TRUE) 
+```
 Total death_avgAnnCt_ratio column  > 1 
 ```{r}
 sum((df$death_avgAnnCt_ratio>1.0), na.rm=TRUE) 
 ```
 
 ```{r}
-df_deat
+df_death__avgAnnCt_ratio <- df[df$death_avgAnnCt_ratio>1,]
+df_death__avgAnnCt_ratio[c("Geography","avgAnnCount","popEst2015", "deathRate","avgAnnCt_rate", "death_avgAnnCt_ratio") ]
+```
+```{r}
+boxplot( df$death_avgAnnCt_ratio, 
+        main = "Death rate /incidence ratio",
+        ylab = "Death rate /incidence ratio", xlab  = paste(c('n = ' ,  sum(df$death_avgAnnCt_ratio<=1.0, na.rm=TRUE) ), collapse= ""))
 ```
 
+```{r}
+#removes the dubious data death_avgAnnCt_ratio>1 and sets it to NA because there is no way for us to determine which is incorrect (deathRate, avgAnnCt_rate)
+
+df$avgAnnCount[df$death_avgAnnCt_ratio>1]<- NA
+df$deathRate[df$death_avgAnnCt_ratio>1]<- NA
+df$death_avgAnnCt_ratio[df$death_avgAnnCt_ratio>1]<- NA
+```
+
+```{r}
+boxplot( df$death_avgAnnCt_ratio, 
+        main = "Death rate /incidence ratio",
+        ylab = "Death rate /incidence ratio", xlab  = paste(c('n = ' ,  sum((df$death_avgAnnCt_ratio<=1.0), na.rm=TRUE) ), collapse= ""))
+```
+
+# Issues with the data
+## Issues : Incidence ratio looks to have 
 
 
 When assessing the variables there are categories that emerge
@@ -233,16 +359,16 @@ scatterplotMatrix( data=df, ~deathRate +PercentMarried +  PctMarriedHouseholds ,
 
 ## Marital Status by incidence rate
 ```{r}
-scatterplotMatrix( data=df, ~log(avgAnnCt_rate) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+scatterplotMatrix( data=df, ~avgAnnCt_rate +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
 ```
 ## Marital Status by log incidence rate
 ```{r}
-scatterplotMatrix( data=df, ~log(avgAnnCt_rate_log) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
 ```
 
 ## Marital Status by death / incidence ratio
 ```{r}
-scatterplotMatrix( data=df, ~log(death_avgAnnCt_ratio) +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio +PercentMarried +  PctMarriedHouseholds , diagonal=c("histogram"))
 ```
 
 
@@ -364,12 +490,12 @@ scatterplotMatrix( data=df, ~avgAnnCt_rate + PctPrivateCoverage + PctEmpPrivCove
 ```
 ## Insurance by Log Incidence Rate
 ```{r}
-scatterplotMatrix( data=df, ~avgAnnCount_log + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
 
 ```
 ## Insurance by Death/Incidence Ratio
 ```{r}
-scatterplotMatrix( data=df, ~avgAnnCount_log + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram") )
 
 ```
 
@@ -383,11 +509,11 @@ cor(df[, c("avgAnnCt_rate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPu
 ```
 ## Correlations by Insurance - Log Incidence Rate
 ```{r}
-cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+cor(df[, c("avgAnnCt_rate_log", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
 ```
 ## Correlations by Insurance - Death/ Incidence Ratio
 ```{r}
-cor(df[, c("avgAnnCt_rate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+cor(df[, c("death_avgAnnCt_ratio", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
 ```
 
 #Employment 16 years or older by Death rate
@@ -417,7 +543,7 @@ cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "
 ```
 ## Correlations by Employment 16 years or older - incidence
 ```{r}
-cor(df[, c("avgAnnCount_log", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+cor(df[, c("avgAnnCt_rate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
 ```
 ## Correlations by Employment 16 years or older - Log incidence
 ```{r}
@@ -490,7 +616,7 @@ hist(df$avgAnnCt_rate, main= 'Incidence Rate',breaks =100, ylab = 'number of cou
 hist(df$avgAnnCt_rate_log, main= 'Log (Incidence Rate)',breaks =100, ylab = 'number of counties', xlab = 'Cancer Rate', labels = FALSE,  ,col = 'gray')
 ```
 ```{r}
-hist(df$death_avgAnnCt_ratio, main= 'death/Incidence Ratio)',breaks =100, ylab = 'number of counties', xlab = 'Cancer Rate', labels = FALSE,  ,col = 'gray')
+hist(df$death_avgAnnCt_ratio, main= 'Death Rate/Incidence Rate Ratio',breaks =100, ylab = 'number of counties', xlab = 'Deaths to Cancer Incidence Rate', labels = FALSE,  ,col = 'gray')
 ```
 
 
@@ -569,11 +695,42 @@ hist(df$PctEmployed16_Over, main= 'Percent Employed 16 years or older',breaks =3
 hist(df$PctUnemployed16_Over, main= 'Percent Unmployed 16 years or older',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'seagreen1')
 ```
 ```{r}
-hist(df$povertyPercent, main= 'Poverty Level',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,  ,col = 'green4')
+hist(df$povertyPercent, main= 'Poverty Level',breaks =30, ylab = 'number of counties', xlab = 'Percent', labels = TRUE,   col = 'green4')
 ```
 ```{r}
-hist(df$medIncome, main= 'Median Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,  ,col = 'green3')
+hist(df$medIncome, main= 'Median Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,   col = 'green3')
 ```
 ```{r}
 hist(df$binnedInc_log, main= 'Binned Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,col = 'green3')
+```
+
+Plots to explore issues with avgAnnCt_rate
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate +popEst2015_log+ binnedInc_log  ,diagonal=c("histogram"))
+```
+```{r}
+scatterplotMatrix( data=df, ~avgAnnCt_rate_log +popEst2015+ binnedInc  ,diagonal=c("histogram"))
+```
+```{r}
+scatterplotMatrix( data=df, ~death_avgAnnCt_ratio +popEst2015+ binnedInc  ,diagonal=c("histogram"))
+```
+
+```{r}
+scatterplotMatrix( data=df, ~log(death_avgAnnCt_ratio) +popEst2015_log + binnedInc_log  ,diagonal=c("histogram"))
+
+```
+
+```{r , fig.width=7,fig.height=7,}
+#planning to show how n could be displayed at least in ggplot
+# require(ggplot2)
+# n_fun <- function(x){
+#   return(data.frame(y = -1, label = paste0("n = ", length(x)  )))
+# }
+# df$RaceCat <- factor(df$RaceCat, levels = c('Asian', 'Black', 'Other', 'White'))
+# 
+# 
+# p <- ggplot(df, aes(RaceCat,RaceCatPct)) + theme_bw()
+# p + geom_boxplot(aes(fill= variable) )+  stat_summary(fun.data = n_fun, geom = "text") +
+#   scale_y_continuous(name="Number of counties", breaks=seq(0,40,10))+labs(title = "Predominate Race - Counties in USA")+ 
+#         theme(legend.background = element_rect( size=0.5, linetype="solid", colour = "gray"),legend.title = element_blank())
 ```
