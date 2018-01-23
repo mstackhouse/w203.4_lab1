@@ -1,0 +1,74 @@
+---
+title: "Cancer EDA_Tim_Mike_Craig_W203_4"
+author: "Tim, Mike, Craig, Wei"
+date: "1/21/2018"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+We are a team of data scientists interested in understanding the societal factors that impact mortality rates of cancer among various communities in the United States.  This report was created as an initial exporatory analysis, aimed at identifying the key features that best predict cancer deaths, in order to develop strategies to improve future outcomes.
+
+### Research Question
+
+1. What characteristics of a community can help to predict mortality rates from cancer?
+2. Can specific communities with high cancer rates be identified for social intervention?
+3. Which interventions would have the largest impact?
+
+
+### About the Data
+```{r}
+df <- read.csv("cancer.csv")
+```
+The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables.  Each observation represents a single county within the United States, and each variable describes that county for a number of different ways.  
+
+**Data Dictionary:**
+
+| Variable Name        | Variable Description                                                       |
+|----------------------|----------------------------------------------------------------------------|
+| avgAnnCount          | 2009 - 2013 mean incidents of cancer per county.                           |
+| medIncome            | Median Income                                                              |
+| popEst2015           | County population, estimated during 2015                                   |
+| povertyPercent       | % of county residents living below the poverty line                        |
+| binnedInc            | Binned income level                                                        |
+| MedianAge            | Median age of county residents                                             |
+| MedianAgeMale        | Median age of Male county residents                                        |
+| MedianAgeFemale      | Median age of Female county residents                                      |
+| Geography            | Description of county location  (county name, state)                       |
+| AvgHouseholdSize     | Average household size, number of people                                   |
+| PercentMarried       | % maried                                                                   |
+| PctNoHS18_24         | % of residents, age 18-24, without completing a high school education      |
+| PctHS18_24           | % of residents, age 18-24, with a high school degree (highest education)   |
+| PctSomeCol18_24      | % of residents, age 18-24, with some college education (no degree)         |
+| PctBachDeg18_24      | % of residents, age 18-24, with a bachelor's degree                        |
+| PctHS25_Over         | % of residents, age over 25, with a high school degree (highest education) |
+| PctBachDeg25_Over    | % of residents, age over 25, with a bachelors degree                       |
+| PctEmployed16_Over   | % of residents, age over 16, that are employed                             |
+| PctUnemployed16_Over | % of residents, age over 16, that are unemployed                           |
+| PctPrivateCoverage   | % of residents with private insurance coverage                             |
+| PctEmpPrivCoverage   | % of residents with employee-provided private insurance coverage           |
+| PctPublicCoverage    | % of residents with public insurance coverage                              |
+| PctWhite             | % of residents with race designation: White                                |
+| PctBlack             | % of residents with race designation: Black                                |
+| PctAsian             | % of residents with race designation: Asian                                |
+| PctOtherRace         | % of residents with race designation: Other                                |
+| PctMarriedHouseholds | % of households that are married                                           |
+| BirthRate            |                                                                            |
+| deathRate            | Count of deaths due to cancer per 100,000 residents                        |
+
+### Data Quality
+[add data quality checks here]
+
+## Univariate Analysis of Key Variables
+
+## Analysis of Key Relationships
+
+## Analysis of Secondary Effects
+
+## Conclusion
