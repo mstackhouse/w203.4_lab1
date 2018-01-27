@@ -15,18 +15,18 @@ library(rmarkdown)
 library(ggplot2)
 ```
 
-## Introduction
+# Introduction
 
 This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future outcomes cancer. We are a team of data scientists motivated to in promote understanding the societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
 
-### Research Question
+## Research Question
 
 Our task was to answer these two key research quesitons :
 
 1. What are the key county level characteristics associated with mortality rates from cancer?
 2. Are there trends in county level characteristics that can be identified to inform social intervention to decrease cancer mortality rates?
 
-### About the Data
+## About the Data
 ```{r Load_dataset}
 df <- read.csv("cancer.csv")
 class(df) # dimensions are 3047 rows x 30 columns
@@ -74,7 +74,7 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 ```{r}
 str(df) #names of columns and variable types
 ```
-### Data Quality
+## Data Quality
 The dataset was inspected prior to regression analysis using the following methods: 
 1. calucating the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function
 2. visually inspect univariate data with histograms and boxplots
@@ -111,10 +111,12 @@ GeoFreq$State <- str_split(GeoFreq$Var1,", ")
 ```
 
 
-## Univariate Analysis of Key Variables
-### Outcome deathRate and Average Annual Rate of Cancer
+# Univariate Analysis of Key Variables
+## Outcome deathRate and Average Annual Rate of Cancer
 
 Summary Statistics:
+
+The cancer mortalityrate
 
 ```{r}
 summary(data.frame(df$deathRate, df$avgAnnCount) )
@@ -124,7 +126,7 @@ summary(data.frame(df$deathRate, df$avgAnnCount) )
 par(mfrow=c(2,2))
 color = 'gray'
 
-title = 'Cancer Mortality per County'
+title = 'Cancer Death Rate per County'
 hist(df$deathRate, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
 boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
 
@@ -134,7 +136,7 @@ boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , x
 ```
 
 
-### Population and birth
+## Population and birth
 
 Summary Statistics:
 ```{r}
@@ -154,7 +156,7 @@ boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "rate" , xlab
 ```
 
 
-### Age
+## Age
 
 ```{r}
 summary(df$MedianAge)
@@ -173,13 +175,13 @@ df$MedianAge[df$MedianAge>100]<- NA #update the Median Age
 summary(data.frame(df$MedianAge, df$MedianAgeMale, df$MedianAgeFemale), digits=3 )
 ```
 
-### Ethnicity
+## Ethnicity
 
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digits=3 )
 ```
-### Household and Marital status
+## Household and Marital status
 
 Summary Statistics
 ```{r}
@@ -198,7 +200,7 @@ sum((df$AvgHouseholdSize<1), na.rm=TRUE) # there are 61 observations of average 
 ```
 
 
-### Education
+## Education
 
 The variables related to education can roughly be grouped as: 
 
@@ -242,14 +244,29 @@ Of the five variables considered, only *PctHS18_24* showed a normal distribution
 
 The variable *PctBachDeg18_24* was the most extreme distribution with a far-left skew.  This is likely due to the deinition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, the majority of considered residents would not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  For this reason, *PctBachDeg18_24* will not be considered a key variable.
 
-### Insurance Coverage
+## Insurance Coverage
 Summary Statistics:
 
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
 
-### Employment
+```{r, fig.height=3, fig.width=8}
+par(mfrow=c(1,3))
+hist(df$PctPrivateCoverage,breaks = seq(20,95,by=5), main = "PctPrivateCoverage Hist")
+
+hist(df$PctEmpPrivCoverage,breaks = seq(10,75,by=5), main = "PctEmpPrivCoverage Hist")
+
+hist(df$PctPublicCoverage,breaks = seq(10,70,by=5), main = "PctPublicCoverage Hist")
+```
+
+```{r}
+qplot(df$PctPublicCoverage, geom="histogram", binwidth = 2, fill=I("white"), col=I("blue"), main = "PctPublicCoverage Hist") 
+```
+
+
+
+## Employment
 Summary Statistics:
 
 ```{r}
@@ -272,7 +289,7 @@ boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "Percent unem
 ```
 
 
-### Income
+## Income
 
 ```{r check_levels_binnedInc }
 levels(df$binnedInc)
@@ -291,9 +308,9 @@ hist(df$PctUnemployed16_Over,main= title ,breaks =30, ylab = 'number of counties
 boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "Percent" , xlab  = paste(c('n = ' , sum(df$PctUnemployed16_Over>0, na.rm=TRUE) ), collapse= ""))
 ```
 
-## Analysis of Key Relationships
+# Analysis of Key Relationships
 
-### Death rate Scatterplot and Correlations by Age 
+## Age 
 
 ```{r}
 scatterplotMatrix( data=df, ~deathRate + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
@@ -303,7 +320,7 @@ cor(df[, c("deathRate", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use 
 ```
 
 
-### Death rate Scatterplot and Correlations by Ethnicity
+## Ethnicity
 ```{r}
 scatterplotMatrix( data=df, ~deathRate + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
 ```
@@ -313,7 +330,7 @@ cor(df[, c("deathRate", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], u
 ```
 
 
-## Death rate Scatterplot and Correlations by  Household size and Marital status 
+## Household size and Marital status 
 
 ```{r}
 scatterplotMatrix( data=df, ~ deathRate + PercentMarried + AvgHouseholdSize + PctMarriedHouseholds ,diagonal=c("histogram"))
@@ -326,39 +343,7 @@ cor(df[, c("deathRate", "PercentMarried",  "AvgHouseholdSize", "PctMarriedHouseh
 
 
 
-
-
-
-## Insurance
-Death rate Scatterplot and Correlations by 
-```{r}
-scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram"))
-```
-
-```{r}
-cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
-```
-
-### Employment
- 16 years or older
-```{r}
-scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
-```
-
-```{r}
-cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
-```
-
-### Income
-```{r}
-scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome   ,diagonal=c("histogram"))
-```
-
-```{r}
-cor(df[, c("deathRate", "povertyPercent",  "medIncome")], use = "complete.obs")
-```
-
-### Education
+## Education
 
 To begin, a correlation matrix of the education variables is shown vs. the target variable *deathRate*:
 ```{r} 
@@ -384,6 +369,60 @@ scatterplot(df$PctHS25_Over, df$deathRate, xlab="Percentage of residents over 25
 
 Overall, these two variables agree with each other: when the percentage of county residents have more education, the mortality rate due to cancer is generally lower.
 
-## Analysis Variables with high correclation and Secondary Effects
 
-## Conclusion
+## Insurance
+Death rate Scatterplot and Correlations by 
+```{r, fig.height=5, fig.width=5}
+scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram"))
+```
+
+
+
+```{r}
+cor(df$deathRate, df$PctPrivateCoverage)
+cor(df$deathRate, df$PctEmpPrivCoverage)
+cor(df$deathRate, df$PctPublicCoverage)
+```
+
+```{r}
+cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+
+```{r, fig.height=4, fig.width=10}
+#,
+par(mfrow=c(1,3))
+plot(jitter(df$deathRate, factor = 2), jitter(df$PctPrivateCoverage, factor = 2))
+abline(lm(df$deathRate ~ df$PctPrivateCoverage))
+
+plot(jitter(df$deathRate, factor = 2), jitter(df$PctEmpPrivCoverage, factor = 2))
+abline(lm(df$deathRate ~ df$PctEmpPrivCoverage))
+
+plot(jitter(df$deathRate, factor = 2), jitter(df$PctPublicCoverage, factor = 2))
+abline(lm(df$deathRate ~ df$PctPublicCoverage))
+```
+
+
+## Employment
+ 16 years or older
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+
+## Income
+```{r, fig.height=3, fig.width=5}
+scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome   ,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "povertyPercent",  "medIncome")], use = "complete.obs")
+```
+
+
+
+# Analysis Variables with high correclation and Secondary Effects
+
+# Conclusion
