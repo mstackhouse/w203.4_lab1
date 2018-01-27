@@ -10,6 +10,9 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(car)
+library(rmarkdown)
+library(ggplot2)
 ```
 
 ## Introduction
@@ -41,13 +44,13 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | Geography*             | Description of county location  (county name, state)                       |county           |
 | popEst2015             | County population, estimated during 2015                                   |population/Birth |
 | BirthRate*             |                                                                            |population/Birth |
-| MedianAge*             | Median age of county residents                                             |demo:age         |
-| MedianAgeMale*         | Median age of Male county residents                                        |demo:age         |
-| MedianAgeFemale*       | Median age of Female county residents                                      |demo:age         |
-| PctWhite*              | % of residents with race designation: White                                |demo:ethnicity   |
-| PctBlack*              | % of residents with race designation: Black                                |demo:ethnicity   |
-| PctAsian*              | % of residents with race designation: Asian                                |demo:ethnicity   |
-| PctOtherRace*          | % of residents with race designation: Other                                |demo:ethnicity   |
+| MedianAge*             | Median age of county residents                                             |age         |
+| MedianAgeMale*         | Median age of Male county residents                                        |age         |
+| MedianAgeFemale*       | Median age of Female county residents                                      |age         |
+| PctWhite*              | % of residents with race designation: White                                |ethnicity   |
+| PctBlack*              | % of residents with race designation: Black                                |ethnicity   |
+| PctAsian*              | % of residents with race designation: Asian                                |ethnicity   |
+| PctOtherRace*          | % of residents with race designation: Other                                |ethnicity   |
 | AvgHouseholdSize*      | Average household size, number of people                                   |Household/Marital|
 | PercentMarried*        | % maried                                                                   |Household/Marital|
 | PctMarriedHouseholds*  | % of households that are married                                           |Household/Marital|
@@ -66,11 +69,16 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | povertyPercent         | % of county residents living below the poverty line                        |income           |
 | binnedInc*             | Binned income level                                                        |income           |
 * Not explicitly defined in data dictionary
-demo: demographics
+
+
+```{r}
+str(df) #names of columns and variable types
+
+```
 
 
 ### Data Quality
-The dataset is 
+Upon inspectoi
 Summary function identified some issues:
 1. PctEmployed16_Over colum has 2285 missing data
 2. death_avgAnnCt_ratio column  > 1 as seen by Max >1.806990; There are 4 obesrvations that meet this criterion
@@ -96,29 +104,152 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 ```{r}
 library(stringr)
 GeoFreq$State <- str_split(GeoFreq$Var1,", ")
+#GeoFreq$State # would like to find a way to iosolate state to get a state count
 ```
 
 
-```{r}
-GeoFreq$State(2)
 
 
+## Univariate Analysis of Key Variables
+### Outcomes
+
+
+```{r ,fig.height=7, fig.width=11}
+
+par(mfrow=c(2,2))
+# layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+hist(df$medIncome, main= 'Median Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,  ,col = 'green4')
+boxplot( df$medIncome,main = "Median Income of counties in the USA", col = 'green4', ylab = "Median Income" , xlab  = paste(c('n = ' ,  sum(df$medIncome>0, na.rm=TRUE) ), collapse= ""))
+
+hist(df$povertyPercent, main= 'Poverty Level',breaks =30, ylab = 'number of counties', xlab = 'Percent below Poverty Level', labels = TRUE,  ,col = 'green4')
+boxplot( df$povertyPercent,main = "Percent below Poverty Level of counties in the USA", col = 'green4', ylab = "Percent below Poverty Level" , xlab  = paste(c('n = ' ,  sum(df$medIncome>0, na.rm=TRUE) ), collapse= ""))
 ```
+
+
+
+### Population and birth
+
+
+### Age
+
+### Ethnicity
+
+### Household and Marital status
+
+### Education
+
+### Insurance Coverage
+
+
+### Employment
+
+
+### Income
+
+
 
 ```{r check_levels_binnedInc }
 levels(df$binnedInc)
 ```
 
+```{r ,fig.height=7, fig.width=11}
 
-## Univariate Analysis of Key Variables
-The 
+par(mfrow=c(2,2))
+# layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+hist(df$medIncome, main= 'Median Income',breaks =30, ylab = 'number of counties', xlab = '', labels = TRUE,  ,col = 'green4')
+boxplot( df$medIncome,main = "Median Income of counties in the USA", col = 'green4', ylab = "Median Income" , xlab  = paste(c('n = ' ,  sum(df$medIncome>0, na.rm=TRUE) ), collapse= ""))
 
+hist(df$povertyPercent, main= 'Poverty Level',breaks =30, ylab = 'number of counties', xlab = 'Percent below Poverty Level', labels = TRUE,  ,col = 'green4')
+boxplot( df$povertyPercent,main = "Percent below Poverty Level of counties in the USA", col = 'green4', ylab = "Percent below Poverty Level" , xlab  = paste(c('n = ' ,  sum(df$medIncome>0, na.rm=TRUE) ), collapse= ""))
+```
 
 
 
 
 ## Analysis of Key Relationships
 
-## Analysis of Secondary Effects
+### Death rate Scatterplot and Correlations by Age 
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + MedianAge + MedianAgeMale  + MedianAgeFemale,diagonal=c("histogram"))
+```
+```{r}
+cor(df[, c("deathRate", "MedianAge",  "MedianAgeMale", "MedianAgeFemale")], use = "complete.obs")
+```
+
+
+### Death rate Scatterplot and Correlations by Ethnicity
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctWhite +  PctAsian + PctAsian + PctOtherRace,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PctWhite",  "PctAsian", "PctAsian", "PctOtherRace")], use = "complete.obs")
+```
+
+
+## Death rate Scatterplot and Correlations by  Household size and Marital status 
+
+```{r}
+scatterplotMatrix( data=df, ~ deathRate + PercentMarried + AvgHouseholdSize + PctMarriedHouseholds ,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PercentMarried",  "AvgHouseholdSize", "PctMarriedHouseholds")], use = "complete.obs")
+```
+
+
+
+
+## Death rate Scatterplot and Correlations by Education levels of 18-14 years
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
+```
+
+
+## Death rate Scatterplot and Correlations by Education levels of 25 years old or older
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctHS25_Over+ PctBachDeg25_Over,diagonal=c("histogram"))
+```
+```{r}
+cor(df[, c("deathRate", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
+```
+
+
+## Death rate Scatterplot and Correlations by Insurance
+
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
+```
+
+#Employment 16 years or older by Death rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
+```
+
+#Income by Death Rate
+```{r}
+scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome   ,diagonal=c("histogram"))
+```
+
+```{r}
+cor(df[, c("deathRate", "povertyPercent",  "medIncome")], use = "complete.obs")
+```
+
+
+### Analysis of Secondary Effects
 
 ## Conclusion
