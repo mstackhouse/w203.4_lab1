@@ -257,7 +257,8 @@ summary(data.frame(df$PctEmployed16_Over, df$PctUnemployed16_Over), digits = 3)
 ```
 
 
-```{r ,fig.height=6, fig.width=8}
+```{r, fig.height=5, fig.width=8}
+#,
 par(mfrow=c(2,2))
 color = 'seagreen1'
 
@@ -325,28 +326,11 @@ cor(df[, c("deathRate", "PercentMarried",  "AvgHouseholdSize", "PctMarriedHouseh
 
 
 
-## Death rate Scatterplot and Correlations by Education levels of 18-14 years
-
-```{r}
-scatterplotMatrix( data=df, ~deathRate + PctNoHS18_24+  PctHS18_24+  PctSomeCol18_24+  PctBachDeg18_24,diagonal=c("histogram"))
-```
-
-```{r}
-cor(df[, c("deathRate", "PctNoHS18_24",  "PctHS18_24", "PctSomeCol18_24", "PctBachDeg18_24")], use = "complete.obs")
-```
 
 
-## Death rate Scatterplot and Correlations by Education levels of 25 years old or older
-```{r}
-scatterplotMatrix( data=df, ~deathRate + PctHS25_Over+ PctBachDeg25_Over,diagonal=c("histogram"))
-```
-```{r}
-cor(df[, c("deathRate", "PctHS25_Over",  "PctBachDeg25_Over")], use = "complete.obs")
-```
 
-
-## Death rate Scatterplot and Correlations by Insurance
-
+## Insurance
+Death rate Scatterplot and Correlations by 
 ```{r}
 scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage + PctPublicCoverage,diagonal=c("histogram"))
 ```
@@ -355,7 +339,8 @@ scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage
 cor(df[, c("deathRate", "PctPrivateCoverage",  "PctEmpPrivCoverage",  "PctPublicCoverage")], use = "complete.obs")
 ```
 
-#Employment 16 years or older by Death rate
+### Employment
+ 16 years or older
 ```{r}
 scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_Over,diagonal=c("histogram"))
 ```
@@ -364,7 +349,7 @@ scatterplotMatrix( data=df, ~deathRate + PctEmployed16_Over +  PctUnemployed16_O
 cor(df[, c("deathRate", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
 ```
 
-#Income by Death Rate
+### Income
 ```{r}
 scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome   ,diagonal=c("histogram"))
 ```
