@@ -301,7 +301,32 @@ scatterplotMatrix( data=df, ~deathRate + povertyPercent + medIncome   ,diagonal=
 cor(df[, c("deathRate", "povertyPercent",  "medIncome")], use = "complete.obs")
 ```
 
+### Education
 
-### Analysis of Secondary Effects
+To begin, a correlation matrix of the education variables is shown vs. the target variable *deathRate*:
+```{r} 
+cor(df[, c("deathRate", "PctNoHS18_24", "PctHS18_24", "PctHS25_Over", "PctBachDeg18_24", "PctBachDeg25_Over")], 
+    use="complete.obs")
+```
+
+The first thing to note is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate.
+
+Observing only the two "over 25 age" variables, we see two disticntly different trends.  The first - percentage of residents with a college degree - shows a moderately decreasing trend with a negative correation of `r cor(df$deathRate, df$PctBachDeg25_Over)`.
+
+```{r}
+scatterplot(df$PctBachDeg25_Over, df$deathRate, xlab="Percentage of residents over 25 with a bachelor's degree", 
+            ylab="Death Rate",main="Cancer death rate vs. college degrees of residents")
+```
+
+The second variable, *PctHS25_Over*, conversely shows an increasing trend with a correlation of `r cor(df$deathRate, df$PctHS25_Over)`.
+
+```{r}
+scatterplot(df$PctHS25_Over, df$deathRate, xlab="Percentage of residents over 25 with only a high school degree", 
+            ylab="Death Rate",main="Cancer death rate vs. high school degrees of residents")
+```
+
+Overall, these two variables agree with each other: when the percentage of county residents have more education, the mortality rate due to cancer is generally lower.
+
+## Analysis of Secondary Effects
 
 ## Conclusion
