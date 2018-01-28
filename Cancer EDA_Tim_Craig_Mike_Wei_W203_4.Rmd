@@ -72,6 +72,7 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | medIncome*             | Median Income                                                              |Income           |
 | povertyPercent         | % of county residents living below the poverty line                        |Income           |
 | binnedInc*             | Binned income level                                                        |Income           |
+Variables with an * did not have a formal definition provided with the dataset. These definitions are inferred from the variable name. 
 
 
 ## Data Quality
@@ -102,18 +103,16 @@ There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting averag
 
 **avgAnnCount:**
 There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is dispropritionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 1000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
-```{r}
 
-# Dataframe created to count frequency of each county name. 
-GeoFreq <-as.data.frame(table(df$Geography))
-GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once 
-```
 
 
 # Univariate Analysis of Key Variables
+
 Univariate analysis is shown in completness because of the issues described. It is important to have a strong understanding of the data.
 
 ## Outcome deathRate and Average Annual Rate of Cancer
+
+Since we do not know the units of cancer mortality rate (ie deathRate) variable, we have refrained from univariate analysis except to state that the data is normally distributed. In contrast, the average annual count of cancer is extremely right skewed due do magnitude changes. To help visualize the distribution, a log transformation was performed and produced a normal distribution curve in the histogram except for a bar count. A highly suspect bar is revealed when a histogram is performed on the transformed data. As discussed in the Data Quality section, we have elected to keep the data in the dataset.    
 
 Summary Statistics:
 
@@ -147,9 +146,10 @@ boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Ann
 ```
 
 
+## Population, birthrate, and Geography
 
-## Population and birth
-The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the poulation helps visualize a distibution curve that looks normal. The birth rate didn't raise any concerns partly because we do not have the units to fully assess this variable. 
+The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the population helps visualize a distribution curve that looks normal. The birth rate is normally distributed with a very slight positive skew. We do not have the units for this variable so our analysis did not go further. We did perform a check to make sure there were no duplicate counties under the geography variable. 
+
 
 Summary Statistics:
 ```{r}
@@ -167,9 +167,18 @@ boxplot(log(df$popEst2015,10),main=title[2],col='lightskyblue1',ylab=y[2],xlab=p
 hist(df$BirthRate   ,main=title[3],breaks=30   ,ylab=y[1],xlab = x[3],col ='gray')
 boxplot(df$BirthRate,main=title[3],col='gray',ylab=y[4],xlab=paste(c('n=',sum(df$BirthRate>=0, na.rm=TRUE)),collapse=""))
 ```
-
+```{r}
+# Dataframe created to count frequency of each county name. 
+GeoFreq <-as.data.frame(table(df$Geography))
+GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once 
+```
 ## Age
 
+The 30 median age observations > 300 years were removed.  The median age overall, for males, and for females per county all provide normal distributions. The median and mean age of females in the county is a 2-3 years greater than that for males. The age data did not raise any concerns. 
+
+```{r}
+summary(data.frame(df$MedianAge, df$MedianAgeMale,df$MedianAgeFemale) )
+```
 
 ```{r}
 #sum((df$MedianAge>300), na.rm=TRUE) # identifies 30 observations median age greater than 300
@@ -195,6 +204,9 @@ boxplot(df$MedianAgeFemale,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=
 
 ## Ethnicity
 
+Most of the counties in the USA are predominantly white as shown by the negatively skewed histogram tallying the number of counties by percent white. As one would expect the minority ethnicities of Black, Asian, and Other Race are positively skewed indicating some counties with sizeable minority populations where `r sum(df$PctBlack >= 50)` counties had a Black population 50% or greater. 
+The ethnicity did not raise any concerns. 
+
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digits=3 )
@@ -203,7 +215,7 @@ summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digi
 ```{r,fig.height=4.5, fig.width=10 }
 par(mfrow=c(2,4))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
-title = c('PerWhite', 'Black', 'Asian', 'Other Race')
+title = c('White', 'Black', 'Asian', 'Other Race')
 y = c('number of counties', 'percent')
 x = c('percent')
 hist(df$PctWhite    ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
@@ -223,7 +235,7 @@ There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting averag
 
 Summary Statistics:
 ```{r}
-summary(data.frame(df$PercentMarried, df$AvgHouseholdSize, df$PctMarriedHouseholds), digits=3 )
+summary(data.frame(df$AvgHouseholdSize,df$PercentMarried,  df$PctMarriedHouseholds), digits=3 )
 ```
 
 ```{r,fig.height=2.5, fig.width=12 }
@@ -232,16 +244,16 @@ color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
 title = c('Percent Married', 'Averarge Household size', 'Percent Married Households')
 y = c('number of counties', 'percent', 'Household size')
 x = c('percent','Household size')
-hist(df$PercentMarried      ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
-hist(df$PctMarriedHouseholds,main= title[2],breaks=30, ylab=y[1], xlab = x[2],col =color[2])
-hist(df$AvgHouseholdSize    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+hist(df$AvgHouseholdSize,main= title[2],breaks=30, ylab=y[1], xlab = x[2],col =color[2])
+hist(df$PercentMarried,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctMarriedHouseholds,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
 yl = c(20, 80)
+boxplot(df$AvgHouseholdSize,main=title[2],col=color[2],ylab=y[3], 
+        xlab=paste(c('n=',sum(df$AvgHouseholdSize>=0, na.rm=TRUE)),collapse=""))
 boxplot(df$PercentMarried,main=title[1],col=color[1],ylab=y[2], ylim =yl,
         xlab=paste(c('n=',sum(df$PercentMarried>=0, na.rm=TRUE)),collapse=""))
-boxplot(df$PctMarriedHouseholds,main=title[2],col=color[2],ylab=y[3], ylim =yl,
+boxplot(df$PctMarriedHouseholds,main=title[3],col=color[3],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',sum(df$PctMarriedHouseholds>=0, na.rm=TRUE)),collapse=""))
-boxplot(df$AvgHouseholdSize,main=title[3],col=color[3],ylab=y[2],
-        xlab=paste(c('n=',sum(df$AvgHouseholdSize>=0, na.rm=TRUE)),collapse=""))
 ```
 
 ## Education
@@ -311,9 +323,10 @@ title = c('Pct Private Insurance', 'Pct Employee Private Insurance', 'Pct Public
 y = c('number of counties','percent')
 x = c('percent')
 yl = c(10, 90)
-hist(df$PctPrivateCoverage    ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
-hist(df$PctEmpPrivCoverage    ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
-hist(df$PctPublicCoverage    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+xl = c(10,100)
+hist(df$PctPrivateCoverage,main= title[1],breaks=30, ylab=y[1],xlab=x[1],xlim =xl,col =color[1])
+hist(df$PctEmpPrivCoverage,main= title[2],breaks=30,ylab=y[1],xlab=x[1],xlim =xl,col =color[2])
+hist(df$PctPublicCoverage, main= title[3],breaks=30,ylab=y[1],xlab=x[1],xlim =xl,col =color[3])
 
 boxplot(df$PctPrivateCoverage,main=title[1],col=color[1],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',    sum(df$PctPrivateCoverage>=0, na.rm=TRUE)),collapse=""))
@@ -356,9 +369,10 @@ boxplot(df$PctUnemployed16_Over,       main=title[2],col=color[2],ylab=y[2],ylim
 
 ## Income and Poverty level
 
+Median income was provided for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew indicating there are counties much greater median income above the mean. 
 
+Percent of residents below the poverty level was also included the dataset and presents a right skew as well indicating select counties have sizeable portion of their residents in this condition. The poverty level is something all counties must address where if one interprets the inter-quartile range (IQR) of the boxplot, 50% of the counties have 12.2- 20.4% of their residents considered impoverished.  This means that the 25% most impoverished counties have 20.4% to as high as 47.4% of their residents in poverty. In terms of analysis, the income and poverty data did not raise any concerns. 
 
-Median income was provided for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew. Percent of residents below the poverty level was also included the dataset and presents a right skew as well. 
 
 The binned income 
 ```{r ,fig.height=4, fig.width=12 }
@@ -592,7 +606,7 @@ This is a challenging dataset due to presence of multiple confounding variables 
 The following correlation matrix includes variables that were deemed to be the 'key' variables of the dataset and showed at least moderate correlation with the target variable, deathRate.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
 
 ```{r}
-cr <- cor(df[, c("MedianAge","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
+cr <- cor(df[, c("PctWhite","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
                   "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use="complete.obs")
 
 corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, title="All variables", method="square",
