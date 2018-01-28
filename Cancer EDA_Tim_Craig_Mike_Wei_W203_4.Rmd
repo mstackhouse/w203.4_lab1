@@ -1,5 +1,5 @@
 ---
-title: "Cancer EDA_Tim_Mike_Craig_W203_4"
+title: "An exploratory analysis of cancer mortality and US demographics by county"
 author: "Tim, Mike, Craig, Wei"
 date: "1/21/2018"
 output:
@@ -21,7 +21,7 @@ library(stringr)
 
 # Introduction
 
-This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future cancer outcomes. We are a team of data scientists motivated to in promote understanding the societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
+This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future cancer outcomes. We are a team of data scientists motivated to promote the understanding of societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
 
 ## Research Question
 
@@ -86,12 +86,11 @@ The dataset was inspected using the following methods:
 3. Scatterplots were completed for all independent variables against the deathrate. Note some scatterplots are not shown.  
 
 ### Missing Data
-**PctSomeCol18_24:**
-The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) - `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
-
-Tim: After thinking about this some more, I would vote to keep in this data with the caveat that there is a significant amount of data missing. the smaller subset might show something. 
 
 **PctEmployed16_Over**
+The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) - `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
+
+**PctSomeCol18_24:**
 The variable for percentage of residents over 16 years old and employed has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
 
 ### Data suspected of being erroroneous
