@@ -89,6 +89,8 @@ The dataset was inspected using the following methods:
 **PctSomeCol18_24:**
 The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
 
+Tim: After thinking about this some more, I would vote to keep in this data with the caveat that there is a significant amount of data missing. the smaller subset might show something. 
+
 **PctEmployed16_Over**
 The variable for percentage of residents over 16 years old and employed has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
 
