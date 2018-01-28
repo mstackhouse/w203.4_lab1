@@ -527,17 +527,18 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
     under poverty level",legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
   col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
+
 # Analysis Variables with high correclation and Secondary Effects
+
+The following correlation matrix was created to identify secondary effects that may be present within the choice variables that were deemed to be the key variables of this analysis.
+
 ```{r}
+cr <- cor(df[, c("MedianAge","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
+                  "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use="complete.obs")
 
+corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, title="All variables", method="square",
+         order="AOE")
 
-
-#Tim place the heat map correlation coefficients map here 
-
-
-
-
-cor(df[, c("MedianAge","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
-           "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
 ```
+
 # Conclusion
