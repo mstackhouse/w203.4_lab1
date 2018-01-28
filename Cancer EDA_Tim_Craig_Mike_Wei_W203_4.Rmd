@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(car)
 library(rmarkdown)
 library(ggplot2)
+library(corrplot)
+library(stringr)
 ```
 
 # Introduction
@@ -80,18 +82,13 @@ The dataset was inspected prior to regression analysis using the following metho
 2. visually inspect univariate data with histograms and boxplots
 3. Scatterplots were completed for all independent variables against the deathrate. Note some scatterplots are not shown.
 
-
-
 **PctSomeCol18_24**
-
 The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r (sum(is.na(df$PctSomeCol18_24)))/(nrow(df))`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
 
 **Median Age **
-There are 30 observations with median age>100. A median age of a county over 100 years of age is highly improbable and these observations were removed.  
+There are 30 observations with median age>300. A median age of a county over 300 years of age is impossiblein real life and these observations were removed.  
 
 **Household size below 1**
-
-
  Death Rate / Incidence Rate ratio -there are 4 of these. Initially I wanted to delete but since the time frames may not be the same, it is better to keep and acknowledge within the text of the report.
 High Incidence (CaseRate) - We should remove and justify the cutoff used.
 
@@ -105,7 +102,7 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 ```
 
 ```{r}
-library(stringr)
+
 GeoFreq$State <- str_split(GeoFreq$Var1,", ")
 #GeoFreq$State # would like to find a way to iosolate state to get a state count
 ```
@@ -122,14 +119,15 @@ The cancer mortalityrate
 summary(data.frame(df$deathRate, df$avgAnnCount) )
 ```
 
-```{r ,fig.height=6, fig.width=8}
-par(mfrow=c(2,2))
-color = 'gray'
+```{r,fig.height=2.5, fig.width=10 }
+par(mfrow=c(1,4))
+color = 'lightskyblue1'
 
 title = 'Cancer Death Rate per County'
 hist(df$deathRate, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
 boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
 
+color = 'gray'
 title = 'Average Annual Count of Cancer'
 hist(df$avgAnnCount,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Avg Annual Count',col =color)
 boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
@@ -142,17 +140,17 @@ Summary Statistics:
 ```{r}
 summary(data.frame(df$popEst2015, df$BirthRate) )
 ```
-```{r ,fig.height=6, fig.width=8}
-par(mfrow=c(2,2))
-color = 'slategray'
+```{r,fig.height=2.5, fig.width=10 }
+par(mfrow=c(1,4))
+color = c('lightskyblue1','gray')
+title = c('County Population in 2015', 'County BirthRate')
+y = c('number of counties', 'rate')
+x = c('percent')
+hist(df$popEst2015   ,main=title[1],breaks=30   ,ylab=y[1],xlab = x[1],col =color[1])
+boxplot(df$popEst2015,main=title[1],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(df$popEst2015>=0, na.rm=TRUE)),collapse=""))
 
-title = 'County Population in 2015'
-hist(df$PctEmployed16_Over, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
-boxplot( df$PctEmployed16_Over,main = title, col = color, ylab = 'number of counties'  , xlab  = paste(c('n = ' ,  sum(df$PctEmployed16_Over>0, na.rm=TRUE) ),collapse= ""))
-
-title = 'County BirthRate'
-hist(df$PctUnemployed16_Over,main= title ,breaks =30, ylab = 'number of counties', xlab = 'rate',col =color)
-boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "rate" , xlab  = paste(c('n = ' , sum(df$PctUnemployed16_Over>0, na.rm=TRUE) ), collapse= ""))
+hist(df$BirthRate   ,main=title[2],breaks=30   ,ylab=y[1],xlab = x[1],col =color[2])
+boxplot(df$BirthRate,main=title[2],col=color[1],ylab=y[2],xlab=paste(c('n=',sum(df$BirthRate>=0, na.rm=TRUE)),collapse=""))
 ```
 
 
@@ -162,43 +160,79 @@ boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "rate" , xlab
 summary(df$MedianAge)
 ```
 ```{r}
-sum((df$MedianAge>100), na.rm=TRUE) # identifies 30 observations median age greater than 100
+sum((df$MedianAge>300), na.rm=TRUE) # identifies 30 observations median age greater than 300
 ```
 ```{r}
 df$MedianAge_gr100 = 0 #creates a new column to save the dubious data
-df$MedianAge_gr100[df$MedianAge>100]<- df$MedianAge[df$MedianAge>100]  # saves the dubious data
-#df[df$MedianAge>100,c("Geography","MedianAge","MedianAgeMale", "MedianAgeFemale","MedianAge_gr100") ] #shows Age data before update
-df$MedianAge[df$MedianAge>100]<- NA #update the Median Age
+df$MedianAge_gr100[df$MedianAge>300]<- df$MedianAge[df$MedianAge>100]  # saves the dubious data
+df$MedianAge[df$MedianAge>300]<- NA #update the Median Age
 ```
 
-```{r}
-summary(data.frame(df$MedianAge, df$MedianAgeMale, df$MedianAgeFemale), digits=3 )
+```{r,fig.height=5, fig.width=10 }
+par(mfrow=c(2,3))
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
+title = c('Median Age', 'Median Age of Males', 'Median Age of Femles')
+y = c('number of counties', 'percent')
+x = c('percent')
+hist(df$MedianAge      ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$MedianAgeMale  ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$MedianAgeFemale,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+
+boxplot(df$MedianAge,      main=title[1],col=color[1],ylab=y[2],xlab=paste(c('n=',sum(df$MedianAge>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$MedianAgeMale,  main=title[2],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(df$MedianAgeMale>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$MedianAgeFemale,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=',sum(df$MedianAgeFemale>=0, na.rm=TRUE)),collapse=""))
 ```
+
+
 
 ## Ethnicity
-
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digits=3 )
 ```
-## Household and Marital status
 
+```{r,fig.height=5, fig.width=10 }
+par(mfrow=c(2,4))
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
+title = c('PerWhite', 'Black', 'Asian', 'Other Race')
+y = c('number of counties', 'percent')
+x = c('percent')
+hist(df$PctWhite    ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctBlack    ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$PctAsian    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+hist(df$PctOtherRace,main= title[4],breaks=30, ylab=y[1], xlab = x[1],col =color[4])
+
+boxplot(df$PctWhite,main=title[1],col=color[1],ylab=y[2],xlab=paste(c('n=',sum(df$PctWhite>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctBlack,main=title[2],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(df$PctBlack>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctAsian,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=',sum(df$PctAsian>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctOtherRace,main=title[4],col=color[4],ylab=y[2],xlab=paste(c('n=',sum(df$PctOtherRace>=0, na.rm=TRUE)),collapse=""))
+```
+## Household and Marital status
+We do not have a definition of household therefore we left these observations in the dataset. However, the commented out code below can be used to remove these observations by setting them to NA
 Summary Statistics
 ```{r}
 summary(data.frame(df$PercentMarried, df$AvgHouseholdSize, df$PctMarriedHouseholds), digits=3 )
 ```
 ```{r}
 sum((df$AvgHouseholdSize<1), na.rm=TRUE) # there are 61 observations of average household size less than 1. 
-
-# We do not have a definition of household therefore we left these observations in the dataset. However, the commented out code below can be used to remove these observations by setting them to NA
-
-# df$AvgHouseholdSize_zero = df$AvgHouseholdSize #creates a new column to save the dubious data
-# df$AvgHouseholdSize_zero[df$AvgHouseholdSize<1]<- df$AvgHouseholdSize[df$AvgHouseholdSize<1]  # saves the dubious data
-# df[df$AvgHouseholdSize<1,c("Geography","AvgHouseholdSize","AvgHouseholdSize_zero") ] #shows AvgHouseholdSize data before update
-# df$AvgHouseholdSize[df$AvgHouseholdSize<1]<- NA  #update the Median Age
-# df[df$AvgHouseholdSize_zero<1,c("Geography","AvgHouseholdSize","AvgHouseholdSize_zero") ] #shows AvgHouseholdSize data after update
 ```
-
+```{r,fig.height=5, fig.width=10 }
+par(mfrow=c(2,3))
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
+title = c('Percent Married', 'Averarge Household size', 'Percent Married Households')
+y = c('number of counties', 'Household size')
+x = c('percent')
+hist(df$PercentMarried      ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctMarriedHouseholds,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$AvgHouseholdSize    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+yl = c(10, 90)
+boxplot(df$PercentMarried,main=title[1],col=color[1],ylab=y[2], ylim =yl,
+        xlab=paste(c('n=',sum(df$PercentMarried>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctMarriedHouseholds,main=title[2],col=color[2],ylab=y[2], ylim =yl,
+        xlab=paste(c('n=',sum(df$PctMarriedHouseholds>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$AvgHouseholdSize,main=title[3],col=color[3],ylab=y[2],
+        xlab=paste(c('n=',sum(df$AvgHouseholdSize>=0, na.rm=TRUE)),collapse=""))
+```
 
 ## Education
 
@@ -212,7 +246,6 @@ The variables related to education can roughly be grouped as:
 As stated previously, the only variable for *some college education*, PctSomeCol18_24, had a significant portion of data missing, and thus will not be considered in this analysis.
 
 Summary Statistics:
-
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
@@ -220,24 +253,30 @@ The basic summary statistics seem plausible and don't contain any concerning res
 
 The following histogram plots show the distributions of the education variables.
 
-```{r}
-# Education Histograms
-par(mfrow=c(2,3))
-hist(df$PctNoHS18_24, 
-     main="High school not completed, 18-24",
-     xlab = "PctNoHS18_24")
-hist(df$PctHS18_24,
-     main="High school only, 18-24",
-     xlab="PctHS18_24")
-hist(df$PctBachDeg18_24,
-     main="College degree, 18-24",
-     xlab="PctBachDeg18_24")
-hist(df$PctHS25_Over,
-     main = "High school only, 25+",
-     xlab="PctHS25_Over")
-hist(df$PctBachDeg25_Over,
-     main="College degree, 25+",
-     xlab="PctBachDeg25_Over")
+
+```{r,fig.height=5, fig.width=10 }
+par(mfrow=c(2,5))
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1', 'plum2')
+title = c("High school not completed, 18-24", "High school only, 18-24", "College degree, 18-24","High school only, 25+","College degree, 25+")
+y = c('number of counties')
+x = c('percent')
+yl = c(0, 75)
+hist(df$PctNoHS18_24     ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctHS18_24       ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$PctBachDeg18_24  ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
+hist(df$PctHS25_Over     ,main= title[4],breaks=30, ylab=y[1], xlab = x[1],col =color[4])
+hist(df$PctBachDeg25_Over,main= title[5],breaks=30, ylab=y[1], xlab = x[1],col =color[5])
+
+boxplot(df$PctNoHS18_24,     main=title[1],col=color[1],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctNoHS18_24>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctHS18_24,       main=title[2],col=color[2],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctHS18_24>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctBachDeg18_24,  main=title[3],col=color[3],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctBachDeg18_24>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctHS25_Over,     main=title[4],col=color[4],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctBachDeg18_24>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctBachDeg25_Over,main=title[5],col=color[5],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctBachDeg25_Over>=0, na.rm=TRUE)),collapse=""))
 ```
 
 Of the five variables considered, only *PctHS18_24* showed a normal distribution.  The other variables had some skew, either positive or negative.  The variable *PctNoHS18_24*, no high school education, for example showed a left skew meaning that smaller percentages, 10-20%, were much more common than high percentages, 30+%.  Conversely, the distribution of county residents that only had a high school education, *PctHS25_Over*, had a postive right skew, with highly percentages much more common than low percentages.  
@@ -246,25 +285,28 @@ The variable *PctBachDeg18_24* was the most extreme distribution with a far-left
 
 ## Insurance Coverage
 Summary Statistics:
-
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
 
-```{r, fig.height=3, fig.width=8}
-par(mfrow=c(1,3))
-hist(df$PctPrivateCoverage,breaks = seq(20,95,by=5), main = "PctPrivateCoverage Hist")
+```{r,fig.height=5, fig.width=7.5 }
+par(mfrow=c(2,3))
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
+title = c('Percent with Private Insurance', 'Percent Employee Private Insurance', 'Percent with Public Insurance')
+y = c('number of counties','percent')
+x = c('percent')
+yl = c(10, 90)
+hist(df$PctPrivateCoverage    ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctEmpPrivCoverage    ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$PctPublicCoverage    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
 
-hist(df$PctEmpPrivCoverage,breaks = seq(10,75,by=5), main = "PctEmpPrivCoverage Hist")
-
-hist(df$PctPublicCoverage,breaks = seq(10,70,by=5), main = "PctPublicCoverage Hist")
+boxplot(df$PctPrivateCoverage,main=title[1],col=color[1],ylab=y[2],ylim =yl,
+        xlab=paste(c('n=',    sum(df$PctPrivateCoverage>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctEmpPrivCoverage,main=title[2],col=color[2],ylab=y[2],ylim =yl,
+        xlab=paste(c('n=',    sum(df$PctEmpPrivCoverage>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctPublicCoverage, main=title[3],col=color[3],ylab=y[2],ylim =yl,
+        xlab=paste(c('n=',    sum(df$PctPublicCoverage>=0, na.rm=TRUE)),collapse=""))
 ```
-
-```{r}
-qplot(df$PctPublicCoverage, geom="histogram", binwidth = 2, fill=I("white"), col=I("blue"), main = "PctPublicCoverage Hist") 
-```
-
-
 
 ## Employment
 Summary Statistics:
@@ -272,22 +314,21 @@ Summary Statistics:
 ```{r}
 summary(data.frame(df$PctEmployed16_Over, df$PctUnemployed16_Over), digits = 3)
 ```
-
-
-```{r, fig.height=5, fig.width=8}
-#,
+```{r,fig.height=5, fig.width=6 }
 par(mfrow=c(2,2))
-color = 'seagreen1'
+color = c('lightskyblue1','gray','khaki1', 'darkseagreen1', 'plum2')
+title = c('Employed 16 yrs or older', 'Unemployed 16 yrs or older')
+y = c('number of counties','percent')
+x = c('percent')
+yl = c(0, 80)
+hist(df$PctEmployed16_Over     ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
+hist(df$PctHS18_24       ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
 
-title = 'Employed 16 yrs or older'
-hist(df$PctEmployed16_Over, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
-boxplot( df$PctEmployed16_Over,main = title, col = color, ylab = "Percent employed"  , xlab  = paste(c('n = ' ,  sum(df$PctEmployed16_Over>0, na.rm=TRUE) ),collapse= ""))
-
-title = 'Unemployed 16 yrs or older'
-hist(df$PctUnemployed16_Over,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Percent below Poverty Level',col =color)
-boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "Percent unemployed" , xlab  = paste(c('n = ' , sum(df$PctUnemployed16_Over>0, na.rm=TRUE) ), collapse= ""))
+boxplot(df$PctEmployed16_Over,     main=title[1],col=color[1],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctEmployed16_Over>=0, na.rm=TRUE)),collapse=""))
+boxplot(df$PctHS18_24,       main=title[2],col=color[2],ylab=y[2],ylim=yl,
+        xlab=paste(c('n=',   sum(df$PctHS18_24>=0, na.rm=TRUE)),collapse=""))
 ```
-
 
 ## Income
 
@@ -295,19 +336,19 @@ boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "Percent unem
 levels(df$binnedInc)
 ```
 
-```{r ,fig.height=6, fig.width=8}
-par(mfrow=c(2,2))
-color = 'green4'
+```{r,fig.height=2.5, fig.width=10 }
+par(mfrow=c(1,4))
+color = 'lightskyblue1'
 
-title = 'Median Income'
+title =  'Median Income'
 hist(df$medIncome, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
-boxplot( df$medIncome,main = title, col = color, ylab = "Income"  , xlab  = paste(c('n = ' ,  sum(df$medIncome>0, na.rm=TRUE) ),collapse= ""))
+boxplot( df$medIncome,main = title, col = color, ylab = 'Median Income'  , xlab  = paste(c('n = ' ,  sum(df$medIncome>=0, na.rm=TRUE) ),collapse= ""))
 
+color = 'gray'
 title = 'Percent below Poverty Level'
-hist(df$PctUnemployed16_Over,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Percent',col =color)
-boxplot( df$PctUnemployed16_Over,main = title  ,col =color, ylab = "Percent" , xlab  = paste(c('n = ' , sum(df$PctUnemployed16_Over>0, na.rm=TRUE) ), collapse= ""))
-```
-
+hist(df$povertyPercent,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Avg Annual Count',col =color)
+boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Poverty Level' , xlab  = paste(c('n = ' , sum(df$povertyPercent>0, na.rm=TRUE) ), collapse= ""))
+``` 
 # Analysis of Key Relationships
 
 ## Age 
@@ -379,7 +420,35 @@ scatterplotMatrix( data=df, ~deathRate + PctPrivateCoverage + PctEmpPrivCoverage
 
 
 ```{r}
-cor(df$deathRate, df$PctPrivateCoverage)
+cor(df$deathRate, df$MedianAge,  use = 'complete.obs')
+cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs')
+cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs')
+cor(df$deathRate, df$PctWhite,  use = 'complete.obs')
+cor(df$deathRate, df$PctBlack,  use = 'complete.obs')
+cor(df$deathRate, df$PctAsian,  use = 'complete.obs')
+cor(df$deathRate, df$PctOtherRace,  use = 'complete.obs')
+cor(df$deathRate, df$PercentMarried,  use = 'complete.obs')
+cor(df$deathRate, df$PctMarriedHouseholds,  use = 'complete.obs')
+cor(df$deathRate, df$BirthRate,  use = 'complete.obs')
+cor(df$deathRate, df$AvgHouseholdSize,  use = 'complete.obs')
+cor(df$deathRate, df$popEst2015,  use = 'complete.obs')
+cor(df$deathRate, df$PctNoHS18_24,  use = 'complete.obs')
+cor(df$deathRate, df$PctHS18_24,  use = 'complete.obs')
+cor(df$deathRate, df$PctSomeCol18_24,  use = 'complete.obs')
+cor(df$deathRate, df$PctBachDeg18_24,  use = 'complete.obs')
+cor(df$deathRate, df$PctHS25_Over,  use = 'complete.obs')
+cor(df$deathRate, df$PctBachDeg25_Over,  use = 'complete.obs')
+cor(df$deathRate, df$PctPrivateCoverage,  use = 'complete.obs')
+cor(df$deathRate, df$PctEmpPrivCoverage,  use = 'complete.obs')
+cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs')
+cor(df$deathRate, df$PctEmployed16_Over,  use = 'complete.obs')
+cor(df$deathRate, df$PctUnemployed16_Over,  use = 'complete.obs')
+cor(df$deathRate, df$povertyPercent,  use = 'complete.obs')
+cor(df$deathRate, df$medIncome,  use = 'complete.obs')
+cor(df$deathRate, df$binnedInc,  use = 'complete.obs')
+cor(df$deathRate, df$Geography,  use = 'complete.obs')
+
+
 cor(df$deathRate, df$PctEmpPrivCoverage)
 cor(df$deathRate, df$PctPublicCoverage)
 ```
