@@ -1,7 +1,7 @@
 ---
-title: "An exploratory analysis of cancer mortality and US demographics by county"
-author: "Tim, Mike, Craig, Wei"
-date: "1/21/2018"
+title: "An Exploratory Analysis of Cancer Mortality and US Demographics by County"
+author: "Tim Witthoefft, Mike Stackhouse, Craig Fujii, Wei Wang"
+date: "1/29/2018"
 output:
   pdf_document: default
   html_document:
@@ -25,7 +25,7 @@ This report presents an initial exporatory data analysis identifying the key fea
 
 ## Research Question
 
-Our task was to answer these two key research quesitons:
+Our task was to answer these two key research questions:
 
 1. What are the key county level characteristics associated with mortality rates from cancer?
 2. Are there trends in county level characteristics that can be identified to inform social intervention to decrease cancer mortality rates?
@@ -36,7 +36,7 @@ df <- read.csv("cancer.csv")
 class(df) # dimensions are 3047 rows x 30 columns
 dim(df) # dimensions of the data set
 ```
-The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county in a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similiarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
+The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county in a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
 
 
 **Table 1. Data Dictionary:**
@@ -79,11 +79,11 @@ Variables with an * did not have a formal definition provided with the dataset. 
 
 The dataset was inspected using the following methods: 
 
-1. Calucating the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
+1. Calculating  the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
 
 2. Visually inspect univariate data with histograms and boxplots  
 
-3. Scatterplots were completed for all independent variables against the deathrate. Note some scatterplots are not shown.  
+3. Scatterplots were completed for all independent variables against the deathRate variable. Note some scatterplots are not shown.  
 
 ### Missing Data
 
@@ -102,13 +102,13 @@ There are `r sum(df$MedianAge>300)` observations (`r round(100*(sum(df$MedianAge
 There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),digits=3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
 
 **avgAnnCount:**
-There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is dispropritionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 1000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
+There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is disproportionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 1000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
 
 
 
 # Univariate Analysis of Key Variables
 
-Univariate analysis is shown in completness because of the issues described. It is important to have a strong understanding of the data.
+Univariate analysis is shown in completeness because of the issues described. It is important to have a strong understanding of the data.
 
 ## Outcome deathRate and Average Annual Rate of Cancer
 
@@ -123,7 +123,7 @@ summary(data.frame(df$deathRate, df$avgAnnCount) )
 ```
 
 ```{r,fig.height=5, fig.width=10 }
-layout(matrix(c(1,2,0,0,3,4,5,6),2,4,byrow=T)) #Switched this to separate incidence and mortaility
+layout(matrix(c(1,2,0,0,3,4,5,6),2,4,byrow=T)) #Switched this to separate incidence and mortality
 color = c('lightskyblue1', 'gray')
 
 title = 'Cancer Death Rate per County'
@@ -146,7 +146,7 @@ boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Ann
 ```
 
 
-## Population, birthrate, and Geography
+## Population, Birth Rate, and Geography
 
 The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the population helps visualize a distribution curve that looks normal. The birth rate is normally distributed with a very slight positive skew. We do not have the units for this variable so our analysis did not go further. We did perform a check to make sure there were no duplicate counties under the geography variable. 
 
@@ -314,7 +314,7 @@ Summary Statistics:
 summary(data.frame(df$PctPrivateCoverage, df$PctEmpPrivCoverage, df$PctPublicCoverage), digits = 4)
 ```
 
-The summary above shows that non of the three variables have missing values. The precentage of people who have private coverage is the largeset among the three. 
+The summary above shows that none of the three variables have missing values. The percentage  of people who have private coverage is the largest  among the three. 
 
 ```{r,fig.height=2.5, fig.width=12 }
 par(mfrow=c(1,6))
@@ -399,7 +399,7 @@ boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Pove
 
 # Analysis of Key Relationships
 
-Table below show below shows the correlation coeffiencients for r
+Table below show below shows the correlation coefficients for r
 ```{r, collapse = TRUE, , tidy =TRUE}
 x <- names(df)[!names(df) %in% c("deathRate", "X")]
 
@@ -441,7 +441,7 @@ cor_df <- cor_df[order(cats, abs(cor_df$cors),decreasing=c(F,T)),]
 
 kable(cor_df,col.names=c("Variable", "Category", "Correlation Coefficient"),
       row.names=F, 
-      caption="Correlation Coefficients of Indepent Variables to Death Rate")
+      caption="Correlation Coefficients of Independent  Variables to Death Rate")
 ```
 
 
@@ -465,7 +465,7 @@ scatterplot(df$PctMarried, df$deathRate, xlab="Percentage Married",
 ## Race vs. Death Rate
 Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, because generally these two are more prominent. In our sample, there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
 
-The race percentage variables have signficant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows.
+The race percentage variables have significant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows.
 
 
 ```{r,fig.height=8.0, fig.width=11 }
@@ -518,7 +518,7 @@ Average household size did not have any correlation with death rate.However, bei
 #sub <- cor_df[cor_df$vars %in% c("povertyPercent"),]
 #kable(sub,
       #row.names=F, 
-      #caption="Correlation Coefficients of Indepent Variables to Death Rate",
+      #caption="Correlation Coefficients of Independent Variables to Death Rate",
       #col.names=c("Variable", "Correlation Coefficient"))
 ```
 
@@ -526,7 +526,7 @@ Average household size did not have any correlation with death rate.However, bei
 
 The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate.
 
-Observing only the two "over 25 age" variables, we see two disticntly different trends.  The first - percentage of residents with a college degree - shows a moderately decreasing trend with a negative correation of `r cor(df$deathRate, df$PctBachDeg25_Over)`. The second variable, *PctHS25_Over*, conversely shows an increasing trend with a correlation of `r cor(df$deathRate, df$PctHS25_Over)`.
+Observing only the two "over 25 age" variables, we see two distinctly different trends.  The first - percentage of residents with a college degree - shows a moderately decreasing trend with a negative correlation  of `r cor(df$deathRate, df$PctBachDeg25_Over)`. The second variable, *PctHS25_Over*, conversely shows an increasing trend with a correlation of `r cor(df$deathRate, df$PctHS25_Over)`.
 
 ```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
 par(mfrow=c(1,2))
@@ -548,7 +548,7 @@ Overall, these two variables agree with each other: when the percentage of count
 
 ## Insurance
 
-The correlation chart below indicates that the Percentage Public Coverage variable has the strongest correlation with the Death Rate whereas the relationsionship between the Percentage Private Coverage variable and the Death Rate agrees with the relationship between the Percentage Employer Private Coverage and the Death Rate. 
+The correlation chart below indicates that the Percentage Public Coverage variable has the strongest correlation with the Death Rate whereas the relationship between the Percentage Private Coverage variable and the Death Rate agrees with the relationship between the Percentage Employer Private Coverage and the Death Rate. 
 
 Death rate Scatterplot and Correlations by 
 
@@ -599,7 +599,7 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
   col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
 
-# Analysis Variables with high correclation and Secondary Effects
+# Analysis Variables with high correlation and Secondary Effects
 
 This is a challenging dataset due to presence of multiple confounding variables - variables that can influence both the dependent (target) variable, as well as other independent variables.  
 
