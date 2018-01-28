@@ -388,34 +388,110 @@ x <- names(df)[!names(df) %in% c("deathRate", "X")]
 
 vars <- c()
 cors <- c()
-
+cats <- c()
 for (i in x) { 
   if (class(df[ ,i]) == "numeric") {
     vars <- c(vars,i)
-    cors <- c(cors,round(cor(df$deathRate,df[ ,i], use = 'complete.obs'),digits = 4))
+    cors <- c(cors,round(cor(df[ ,i], df$deathRate, use = 'complete.obs'),digits = 4))
+    
+    if (i %in% c("MedianAge", "MedianAgeMale", "MedianAgeFemale")) {
+      cats <- c(cats,"Age")
+    } else if (i %in% c("PctWhite", "PctBlack", "PctAsian", "PctOtherRace")) {
+      cats <- c(cats,"Ethnicity")
+    } else if (i %in% c("AvgHouseholdSize", "PercentMarried", "PctMarriedHouseholds")){
+      cats <- c(cats,"Household/Marital")
+    } else if (i %in% c("PctNoHS18_24", "PctHS18_24", "PctSomeCol18_24", 
+                        "PctBachDeg18_24", "PctHS25_Over", "PctBachDeg25_Over")){
+      cats <- c(cats,"Education")
+    } else if (i %in% c("PctPrivateCoverage", "PctEmpPrivCoverage", "PctPublicCoverage")){
+      cats <- c(cats,"Insurance")
+    } else if (i %in% c("PctEmployed16_Over", "PctUnemployed16_Over")){
+      cats <- c(cats,"Employment")
+    } else if (i %in% c("medIncome", "povertyPercent", "binnedInc")){
+      cats <- c(cats,"Income")
+    } else if (i %in% c("avgAnnCount")){
+      cats <- c(cats,"Cancer Incidence")
+    } else if (i %in% c("popEst2015", "BirthRate")){
+      cats <- c(cats,"Population/Birth")
+    } else {
+      cats <- c(cats,"????")
+    }
   }
 }
 
-cor_df <- data.frame(vars,cors,row.names=NULL)
-cor_df <- cor_df[order(abs(cor_df$cors),decreasing=T),]
+cor_df <- data.frame(vars,cats,cors,row.names=NULL)
+cor_df <- cor_df[order(cats, abs(cor_df$cors),decreasing=c(F,T)),]
 
-kable(cor_df,col.names=c("Variable", "Correlation Coefficient"),
+kable(cor_df,col.names=c("Variable", "Category", "Correlation Coefficient"),
       row.names=F, 
       caption="Correlation Coefficients of Indepent Variables to Death Rate")
 ```
 
-# MIKE TO ADD HIS SECTION HERE 
 
-```{r,fig.height=4, fig.width=6 }
-r_cor = round(cor(df$deathRate, df$PctBlack,  use = 'complete.obs'),5)
-scatterplot(df$PctBlack, df$deathRate, xlab="Percentage of residents black", 
-            ylab="Death Rate",main="Cancer death rate vs. percent county of black ethnicity",
-            legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
-            col=c('red','green', rgb(0,0,250,100,maxColorValue=255)))
+## Marriage vs. Death Rate
+
+Marriage seems to have a slight negative relationship with cancer death rates. The dataset had two variables to explore: *PctMarried* and *PercentMarriedHouseholds.* Unsurprisingly, these variables have correlations very close to each other, with *PctMarried* having `r round(cor(df$deathRate, df$PctMarried),3)` and *PctMarriedHouseholds* having `r round(cor(df$deathRate,df$PctMarriedHouseholds),3)`. This may suggest that partner support leads to better outcomes with cancer mortality and would be worth investigating further. 
+
+```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
+par(mfrow=c(1,2))
+r_cor = round(cor(df$deathRate, df$PctMarriedHouseholds,  use = 'complete.obs'),5)
+scatterplot(df$PctMarriedHouseholds, df$deathRate, xlab="Percentage of Households Married", 
+     ylab="Death Rate",main="Cancer death rate vs. Percent Households Married",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+
+r_cor = round(cor(df$deathRate, df$PctMarried,  use = 'complete.obs'),5)
+scatterplot(df$PctMarried, df$deathRate, xlab="Percentage Married", 
+     ylab="Death Rate",main="Cancer death rate vs. Percent Married",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
 
-# END MIKE SECITON
+## Race vs. Death Rate
+Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, because generally these two are more prominent. In our sample, there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
 
+The race percentage variables have signficant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows.
+
+
+```{r,fig.height=8.0, fig.width=11 }
+par(mfrow=c(2,2))
+bplot_race <- function(race, racec) {
+  race_bin = cut(race, breaks = c(0, 25, 50, 75, 100), label = 
+                 c("LOW", "LOW-MID", "MID-HIGH", "HIGH"))
+  
+  boxplot(df$deathRate ~ race_bin, data=df, 
+          main = paste("Percent ", racec, " Split by 25%"),
+          ylab="Death Rate")
+}
+
+bplot_race(df$PctBlack, "Black")
+bplot_race(df$PctWhite, "White")
+bplot_race(df$PctAsian, "Asian")
+bplot_race(df$PctOtherRace, "Other")
+
+```
+
+
+
+## Age vs. Death Rate
+
+The interesting result about age compared to death rate is that the correlation is rather weak. One guess that as a community ages, so do the ages. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
+
+```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
+par(mfrow=c(1,3))
+r_cor = round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)
+scatterplot(df$MedianAge, df$deathRate, xlab="Median Age", 
+     ylab="Death Rate",main="Cancer death rate vs. Median Age",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+
+r_cor = round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)
+scatterplot(df$MedianAgeMale, df$deathRate, xlab="Median Age Male", 
+     ylab="Death Rate",main="Cancer death rate vs. Median Age Male",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+
+r_cor = round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)
+scatterplot(df$MedianAgeFemale, df$deathRate, xlab="Median Age Female", 
+     ylab="Death Rate",main="Cancer death rate vs. Median Age Female",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+```
 ## Household size and Marital status 
 
 Average household size did not have any correlation with death rate.However, being married had a weak negative correlation at -0.2668 and being married in a household had a slightly more negative correlation at -0.2933. The trends may suggest a weak association of being married or  being married and living together in a household reduces the risk of developing cancer. Since there are stronger correlations to other variables in this dataset, we did not explore these variables further.
@@ -428,38 +504,24 @@ Average household size did not have any correlation with death rate.However, bei
       #caption="Correlation Coefficients of Indepent Variables to Death Rate",
       #col.names=c("Variable", "Correlation Coefficient"))
 ```
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	PercentMarried		| `r cor(df$deathRate, df$PercentMarried,  use = 'complete.obs')	`|
-|	PctMarriedHouseholds		| `r cor(df$deathRate, df$PctMarriedHouseholds,  use = 'complete.obs')	`|
-|	AvgHouseholdSize		| `r cor(df$deathRate, df$AvgHouseholdSize,  use = 'complete.obs')	`|
 
 ## Education
-To begin, a correlation table of the education variables is shown vs. the target variable *deathRate*
 
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	PctNoHS18_24		| `r cor(df$deathRate, df$PctNoHS18_24,  use = 'complete.obs')	`|
-|	PctHS18_24		| `r cor(df$deathRate, df$PctHS18_24,  use = 'complete.obs')	`|
-|	PctSomeCol18_24		| `r cor(df$deathRate, df$PctSomeCol18_24,  use = 'complete.obs')	`|
-|	PctBachDeg18_24		| `r cor(df$deathRate, df$PctBachDeg18_24,  use = 'complete.obs')	`|
-|	PctHS25_Over		| `r cor(df$deathRate, df$PctHS25_Over,  use = 'complete.obs')	`|
-|	PctBachDeg25_Over		| `r cor(df$deathRate, df$PctBachDeg25_Over,  use = 'complete.obs')	`|
+The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate.
 
+Observing only the two "over 25 age" variables, we see two disticntly different trends.  The first - percentage of residents with a college degree - shows a moderately decreasing trend with a negative correation of `r cor(df$deathRate, df$PctBachDeg25_Over)`. The second variable, *PctHS25_Over*, conversely shows an increasing trend with a correlation of `r cor(df$deathRate, df$PctHS25_Over)`.
 
-The first thing to note is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate.
-
-Observing only the two "over 25 age" variables, we see two disticntly different trends.  The first - percentage of residents with a college degree - shows a moderately decreasing trend with a negative correation of `r cor(df$deathRate, df$PctBachDeg25_Over)`.
-
-```{r,fig.height=4, fig.width=6 }
+```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
+par(mfrow=c(1,2))
+r_cor = round(cor(df$deathRate, df$PctBachDeg25_Over,  use = 'complete.obs'),5)
 scatterplot(df$PctBachDeg25_Over, df$deathRate, xlab="Percentage of residents over 25 with a bachelor's degree", 
-            ylab="Death Rate",main="Cancer death rate vs. college degrees of residents")
-```
+     ylab="Death Rate",main="Cancer death rate vs. college degrees of residents",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 
-The second variable, *PctHS25_Over*, conversely shows an increasing trend with a correlation of `r cor(df$deathRate, df$PctHS25_Over)`.
-```{r,fig.height=4, fig.width=6 }
 r_cor = round(cor(df$deathRate, df$PctHS25_Over,  use = 'complete.obs'),5)
-scatterplot(df$PctBachDeg25_Over, df$deathRate, xlab="Percentage of residents over 25 with a bachelor's degree",col=c('green1','red', rgb(0,0,0,100,maxColorValue=255)),ylab="Death Rate",main="Cancer death rate vs. college degrees of residents")
+scatterplot(df$PctHS25_Over, df$deathRate, xlab="Percentage of residents over 25 with a bachelor's degree", 
+     ylab="Death Rate",main="Cancer death rate vs. college degrees of residents",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
 
 
@@ -468,34 +530,24 @@ Overall, these two variables agree with each other: when the percentage of count
 
 
 ## Insurance
-Death rate Scatterplot and Correlations by 
 
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	PctPrivateCoverage		| `r cor(df$deathRate, df$PctPrivateCoverage,  use = 'complete.obs')	`|
-|	PctEmpPrivCoverage		| `r cor(df$deathRate, df$PctEmpPrivCoverage,  use = 'complete.obs')	`|
-|	PctPublicCoverage		| `r cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs')	`|
 ```{r,fig.height=4, fig.width=6 }
 r_cor = round(cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs'),5)
 scatterplot(df$PctPublicCoverage, df$deathRate, xlab="Percentage of residents with public insurance", 
-     ylab="Death Rate",main="Cancer death rate vs. residents with public insurance",legend ('topleft',bty='n',     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+     ylab="Death Rate",main="Cancer death rate vs. residents with public insurance",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
 
 
 ## Employment
  16 years or older
- 
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	PctEmployed16_Over		| `r cor(df$deathRate, df$PctEmployed16_Over,  use = 'complete.obs')	`|
-|	PctUnemployed16_Over		| `r cor(df$deathRate, df$PctUnemployed16_Over,  use = 'complete.obs')	`|
+
 
 ```{r,fig.height=4, fig.width=6 }
 r_cor = round(cor(df$deathRate, df$PctEmployed16_Over,  use = 'complete.obs'),5)
-scatterplot(df$PctEmployed16_Over, df$deathRate, xlab="Percentage of residents 
-    over 16 and employed", ylab="Death Rate",main="Cancer death rate vs. residents 
-    with employment",legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
-  col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+scatterplot(df$PctEmployed16_Over, df$deathRate, xlab="Percentage of residents over 16 and employed", 
+     ylab="Death Rate",main="Cancer death rate vs. residents with employment",legend ('topleft',bty='n',
+     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
 
 ## Income
@@ -509,20 +561,13 @@ boxplot(df$deathRate ~ df$binnedInc, data = df, cex.axis = .58 ,main = "income c
 ```
 
 
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	povertyPercent		| `r cor(df$deathRate, df$povertyPercent,  use = 'complete.obs')	`|
-|	medIncome		| `r cor(df$deathRate, df$medIncome,  use = 'complete.obs')`|
-
-
-```{r,fig.height=4, fig.width=6 }
+```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
 r_cor = round(cor(df$deathRate, df$povertyPercent,  use = 'complete.obs'),5)
 scatterplot(df$povertyPercent, df$deathRate, xlab="Percentage of residents 
     under poverty level", ylab="Death Rate",main="Cancer death rate vs. percent residents 
     under poverty level",legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
   col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
-```
-```{r,fig.height=4, fig.width=6 }
+
 r_cor = round(cor(df$medIncome, df$povertyPercent,  use = 'complete.obs'),5)
 scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents 
     under poverty level", ylab="Death Rate",main="Cancer death rate vs. percent residents 
