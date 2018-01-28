@@ -530,7 +530,9 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
 
 # Analysis Variables with high correclation and Secondary Effects
 
-The following correlation matrix was created to identify secondary effects that may be present within the choice variables that were deemed to be the key variables of this analysis.
+This is a challenging dataset due to presence of multiple confounding variables - variables that can influence both the dependent (target) variable, as well as other independent variables.  
+
+The following correlation matrix includes variables that were deemed to be the 'key' variables of the dataset and showed at least moderate correlation with the target variable, deathRate.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
 
 ```{r}
 cr <- cor(df[, c("MedianAge","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
