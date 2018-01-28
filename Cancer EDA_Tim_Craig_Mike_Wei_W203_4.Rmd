@@ -85,17 +85,23 @@ The dataset was inspected using the following methods:
 
 3. Scatterplots were completed for all independent variables against the deathrate. Note some scatterplots are not shown.  
 
+### Missing Data
 **PctSomeCol18_24:**
-The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
+The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
 
+**PctEmployed16_Over**
+The variable for percentage of residents over 16 years old and employed has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
+
+### Data suspected of being erroroneous
 **Median Age: **
-There are 30 observations (`r round(100*(sum(is.na(df$MedianAge[df$MedianAge>300]))/(nrow(df))),5)`%`with median age>300. A median age of a county over 300 years of age is impossible in real life and these observations were removed.  This represents a small portion of the dataset. 
+There are `r sum(is.na(df$MedianAge[df$MedianAge>300]))` observations (`r round(100*(sum(is.na(df$MedianAge[df$MedianAge>300]))/(nrow(df))),5)`%`with median age>300. A median age of a county over 300 years of age is impossible in real life and these observations were removed.  This represents a small portion of the dataset. 
 
-**Household size below :**
-We do not have a definition of household therefore we left these observations in the dataset. However, the commented out code below can be used to remove these observations by setting them to NA 
+**Household size below:**
+There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
 
-**ethnicty**
-X number ethnicties do not add to 100%
+**avgAnnCount:**
+There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%`with the same value of 1962.667684.There are nine  It is likely these data points are erroneous; however, there are 9 observations greater than 1962.667684; therefore, we cannot determine conclusively which are erroneous. For this reason we kept these observations in the dataset. 
+
 
 ```{r}
 # Dataframe created to count frequency of each county name. 
@@ -104,22 +110,20 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 ```
 
 
-
-
 # Univariate Analysis of Key Variables
 Univariate analysis is shown in completness because of the issues described. It is important to have a strong understanding of the data 
 ## Outcome deathRate and Average Annual Rate of Cancer
 
 Summary Statistics:
 
-The ccancer mortality rate
+The cancer mortality rates are normally distributed. However, the average annual count of cancer is extremely right skewed due do magnitude changes. To help visualize the distribution, a log transformation was performed and produced a normal distribution curve in the histogram except for a bar count  
 
 ```{r}
 summary(data.frame(df$deathRate, df$avgAnnCount) )
 ```
 
-```{r,fig.height=2.5, fig.width=10 }
-par(mfrow=c(1,4))
+```{r,fig.height=5, fig.width=10 }
+par(mfrow=c(2,4))
 color = c('lightskyblue1', 'gray')
 
 title = 'Cancer Death Rate per County'
@@ -129,28 +133,33 @@ boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , 
 title = 'Average Annual Count of Cancer'
 hist(df$avgAnnCount,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Avg Annual Count',col =color[2])
 boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
+
+title = 'log Avg Annual Count of Cancers'
+hist(log(df$avgAnnCount,10),main= title ,breaks =30, ylab = 'number of counties', xlab = 'log10 Avg Annual Count',col =color[2])
+boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Annual Count' , xlab  = paste(c('n = ' , sum(log(df$avgAnnCount,10)>0, na.rm=TRUE) ), collapse= ""))
 ```
 
 
+
 ## Population and birth
+The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the poulation helps visualize a distibution curve that looks normal. The birth rate didn't raise any concerns partly because we do not have the units to fully assess this variable. 
 
 Summary Statistics:
 ```{r}
 summary(data.frame(df$popEst2015, df$BirthRate) )
 ```
 ```{r,fig.height=2.5, fig.width=10 }
-par(mfrow=c(1,4))
-color = c('lightskyblue1','gray')
-title = c('County Population in 2015', 'County BirthRate')
-y = c('number of counties', 'rate')
-x = c('percent')
-hist(df$popEst2015   ,main=title[1],breaks=30   ,ylab=y[1],xlab = x[1],col =color[1])
-boxplot(df$popEst2015,main=title[1],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(df$popEst2015>=0, na.rm=TRUE)),collapse=""))
+par(mfrow=c(1,5))
+title = c('County Population in 2015', 'Log County Pop in 2015', 'County BirthRate')
+y = c('number of counties', 'log10 population','population','rate')
+x = c('population','log10 population','rate')
+hist(df$popEst2015        ,main=title[1],breaks=30   ,ylab=y[1],xlab = x[1],col ='blue')
+hist(log(df$popEst2015,10)   ,main=title[2],breaks=30   ,ylab=y[1],xlab = x[2],col ='lightskyblue1')
+boxplot(log(df$popEst2015,10),main=title[2],col='lightskyblue1',ylab=y[2],xlab=paste(c('n=',sum(df$popEst2015>=0, na.rm=TRUE)),collapse=""))
 
-hist(df$BirthRate   ,main=title[2],breaks=30   ,ylab=y[1],xlab = x[1],col =color[2])
-boxplot(df$BirthRate,main=title[2],col=color[1],ylab=y[2],xlab=paste(c('n=',sum(df$BirthRate>=0, na.rm=TRUE)),collapse=""))
+hist(df$BirthRate   ,main=title[3],breaks=30   ,ylab=y[1],xlab = x[3],col ='gray')
+boxplot(df$BirthRate,main=title[3],col='gray',ylab=y[4],xlab=paste(c('n=',sum(df$BirthRate>=0, na.rm=TRUE)),collapse=""))
 ```
-
 
 ## Age
 
@@ -162,8 +171,8 @@ df$MedianAge_gr100[df$MedianAge>300]<- df$MedianAge[df$MedianAge>300]  # saves t
 df$MedianAge[df$MedianAge>300]<- NA #update the Median Age
 ```
 
-```{r,fig.height=4.5, fig.width=9 }
-par(mfrow=c(2,3))
+```{r,fig.height=2.0, fig.width=11 }
+par(mfrow=c(1,6))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
 title = c('Median Age', 'Median Age of Males', 'Median Age of Femles')
 y = c('number of counties', 'percent')
@@ -199,27 +208,26 @@ boxplot(df$PctAsian,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=',sum(d
 boxplot(df$PctOtherRace,main=title[4],col=color[4],ylab=y[2],xlab=paste(c('n=',sum(df$PctOtherRace>=0, na.rm=TRUE)),collapse=""))
 ```
 ## Household and Marital status
-We do not have a definition of household therefore we left these observations in the dataset. However, the commented out code below can be used to remove these observations by setting them to NA
+There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we left these observations in the dataset. 
+
 Summary Statistics
 ```{r}
 summary(data.frame(df$PercentMarried, df$AvgHouseholdSize, df$PctMarriedHouseholds), digits=3 )
 ```
-```{r}
-sum((df$AvgHouseholdSize<1), na.rm=TRUE) # there are 61 observations of average household size less than 1. 
-```
-```{r,fig.height=4.5, fig.width=10 }
-par(mfrow=c(2,3))
+
+```{r,fig.height=2.5, fig.width=12 }
+par(mfrow=c(1,6))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
 title = c('Percent Married', 'Averarge Household size', 'Percent Married Households')
-y = c('number of counties', 'Household size')
-x = c('percent')
+y = c('number of counties', 'percent', 'Household size')
+x = c('percent','Household size')
 hist(df$PercentMarried      ,main= title[1],breaks=30, ylab=y[1], xlab = x[1],col =color[1])
-hist(df$PctMarriedHouseholds,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =color[2])
+hist(df$PctMarriedHouseholds,main= title[2],breaks=30, ylab=y[1], xlab = x[2],col =color[2])
 hist(df$AvgHouseholdSize    ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
 yl = c(20, 80)
 boxplot(df$PercentMarried,main=title[1],col=color[1],ylab=y[2], ylim =yl,
         xlab=paste(c('n=',sum(df$PercentMarried>=0, na.rm=TRUE)),collapse=""))
-boxplot(df$PctMarriedHouseholds,main=title[2],col=color[2],ylab=y[2], ylim =yl,
+boxplot(df$PctMarriedHouseholds,main=title[2],col=color[2],ylab=y[3], ylim =yl,
         xlab=paste(c('n=',sum(df$PctMarriedHouseholds>=0, na.rm=TRUE)),collapse=""))
 boxplot(df$AvgHouseholdSize,main=title[3],col=color[3],ylab=y[2],
         xlab=paste(c('n=',sum(df$AvgHouseholdSize>=0, na.rm=TRUE)),collapse=""))
@@ -275,15 +283,19 @@ Of the five variables considered, only *PctHS18_24* showed a normal distribution
 The variable *PctBachDeg18_24* was the most extreme distribution with a far-left skew.  This is likely due to the deinition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, the majority of considered residents would not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  For this reason, *PctBachDeg18_24* will not be considered a key variable.
 
 ## Insurance Coverage
+
+
+
+
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
 
-```{r,fig.height=5, fig.width=7.5 }
-par(mfrow=c(2,3))
+```{r,fig.height=2.5, fig.width=12 }
+par(mfrow=c(1,6))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
-title = c('Percent with Private Insurance', 'Percent Employee Private Insurance', 'Percent with Public Insurance')
+title = c('Pct Private Insurance', 'Pct Employee Private Insurance', 'Pct Public Insurance')
 y = c('number of counties','percent')
 x = c('percent')
 yl = c(10, 90)
@@ -300,13 +312,16 @@ boxplot(df$PctPublicCoverage, main=title[3],col=color[3],ylab=y[2],ylim =yl,
 ```
 
 ## Employment
+
+Other than teh 152 missing data observations, the two variables describing employment of residents 16 years or older show a a normal distribution.  
+
 Summary Statistics:
 
 ```{r}
 summary(data.frame(df$PctEmployed16_Over, df$PctUnemployed16_Over), digits = 3)
 ```
-```{r,fig.height=5, fig.width=6 }
-par(mfrow=c(2,2))
+```{r,fig.height=2.5, fig.width=10 }
+par(mfrow=c(1,4))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1', 'plum2')
 title = c('Employed 16 yrs or older', 'Unemployed 16 yrs or older')
 y = c('number of counties','percent')
@@ -320,8 +335,15 @@ boxplot(df$PctEmployed16_Over,     main=title[1],col=color[1],ylab=y[2],ylim=yl,
 boxplot(df$PctHS18_24,       main=title[2],col=color[2],ylab=y[2],ylim=yl,
         xlab=paste(c('n=',   sum(df$PctHS18_24>=0, na.rm=TRUE)),collapse=""))
 ```
+
+
+
 ## Income and Poverty level
-Median income and binned income are included 
+
+
+
+Median income was provide for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew. Percent residents below thet poverty level was also included the dataset and presents a right skew as well. 
+
 The binned income 
 ```{r ,fig.height=4, fig.width=12 }
 df$binnedInc <- factor(df$binnedInc , levels = c('[22640, 34218.1]', '(34218.1, 37413.8]', '(37413.8, 40362.7]', '(40362.7, 42724.4]', '(42724.4, 45201]', '(45201, 48021.6]', '(48021.6, 51046.4]' , '(51046.4, 54545.6]' , '(54545.6, 61494.5]' ,'(61494.5, 125635]' ))
@@ -345,10 +367,10 @@ hist(df$povertyPercent,main= title ,breaks =30, ylab = 'number of counties', xla
 boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Poverty Level' , xlab  = paste(c('n = ' , sum(df$povertyPercent>0, na.rm=TRUE) ), collapse= ""))
 ``` 
 # Analysis of Key Relationships
-Table below show
+Table below show below shows the correlation coeffiencients fof r
 ```{r, collapse = TRUE, , tidy =TRUE}
 
-# Mike replace with your loop 
+# Mike replace with your For loop 
 
 cor(df$deathRate, df$avgAnnCount,  use = 'complete.obs')
 cor(df$deathRate, df$BirthRate,  use = 'complete.obs')
@@ -485,7 +507,11 @@ scatterplot(df$PctEmployed16_Over, df$deathRate, xlab="Percentage of residents
 ```
 
 ## Income
-```{r ,fig.height=3.5, fig.width=12 }
+
+The binned income shows a downward trend in death rate as the binned median incomes increases. 
+
+Median income 
+```{r ,fig.height=4, fig.width=12 }
 boxplot(df$deathRate ~ df$binnedInc, data = df, cex.axis = .58 ,main = "income categories",
         ylab = "death rate", col='lightskyblue1')
 ```
@@ -494,7 +520,7 @@ boxplot(df$deathRate ~ df$binnedInc, data = df, cex.axis = .58 ,main = "income c
 |	Independent variable		|	cor to death rate	|
 |---------------------|----------------|
 |	povertyPercent		| `r cor(df$deathRate, df$povertyPercent,  use = 'complete.obs')	`|
-|	medIncome		| `rPctBachDeg25_Overcor(df$deathRate, df$medIncome,  use = 'complete.obs')	`|
+|	medIncome		| `r cor(df$deathRate, df$medIncome,  use = 'complete.obs')`|
 
 
 ```{r,fig.height=4, fig.width=6 }
@@ -513,7 +539,14 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
 ```
 # Analysis Variables with high correclation and Secondary Effects
 ```{r}
+
+
+
 #Tim place the heat map correlation coefficients map here 
+
+
+
+
 cor(df[, c("MedianAge","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
            "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use = "complete.obs")
 ```
