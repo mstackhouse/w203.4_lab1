@@ -295,13 +295,14 @@ The variable *PctBachDeg18_24* was the most extreme distribution with a far-righ
 
 ## Insurance Coverage
 
-
-
+There are three variables that are categorized under Insurance Coverage: PctPrivateCoverage, PctEmpPrivCoverage and PctPublicCoverage. 
 
 Summary Statistics:
 ```{r}
-summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
+summary(data.frame(df$PctPrivateCoverage, df$PctEmpPrivCoverage, df$PctPublicCoverage), digits = 4)
 ```
+
+The summary above shows that non of the three variables have missing values. The precentage of people who have private coverage is the largeset among the three. 
 
 ```{r,fig.height=2.5, fig.width=12 }
 par(mfrow=c(1,6))
@@ -321,6 +322,8 @@ boxplot(df$PctEmpPrivCoverage,main=title[2],col=color[2],ylab=y[2],ylim =yl,
 boxplot(df$PctPublicCoverage, main=title[3],col=color[3],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',    sum(df$PctPublicCoverage>=0, na.rm=TRUE)),collapse=""))
 ```
+
+The histograms and the boxplots show that the PctPrivateCoverage variable is slightly skewed left. However it's close to the to normal distribution and the other two variables has normal distribution as well. So no transformation needs to be done and all three variables can be included in the analysis. 
 
 ## Employment
 
@@ -531,13 +534,20 @@ Overall, these two variables agree with each other: when the percentage of count
 
 ## Insurance
 
+The correlation chart below indicates that the Percentage Public Coverage variable has the strongest correlation with the Death Rate whereas the relationsionship between the Percentage Private Coverage variable and the Death Rate agrees with the relationship between the Percentage Employer Private Coverage and the Death Rate. 
+
+Death rate Scatterplot and Correlations by 
+
+|	Independent variable		|	cor to death rate	|
+|---------------------|----------------|
+|	PctPrivateCoverage		| `r cor(df$deathRate, df$PctPrivateCoverage,  use = 'complete.obs')	`|
+|	PctEmpPrivCoverage		| `r cor(df$deathRate, df$PctEmpPrivCoverage,  use = 'complete.obs')	`|
+|	PctPublicCoverage		| `r cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs')	`|
 ```{r,fig.height=4, fig.width=6 }
 r_cor = round(cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs'),5)
 scatterplot(df$PctPublicCoverage, df$deathRate, xlab="Percentage of residents with public insurance", 
-     ylab="Death Rate",main="Cancer death rate vs. residents with public insurance",legend ('topleft',bty='n',
-     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
+     ylab="Death Rate",main="Cancer death rate vs. residents with public insurance",legend ('topleft',bty='n',     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
-
 
 ## Employment
  16 years or older
