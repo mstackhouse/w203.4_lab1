@@ -36,7 +36,7 @@ df <- read.csv("cancer.csv")
 class(df) # dimensions are 3047 rows x 30 columns
 dim(df) # dimensions of the data set
 ```
-The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county for a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similiarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
+The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county in a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similiarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
 
 
 **Table 1. Data Dictionary:**
@@ -73,10 +73,9 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | povertyPercent         | % of county residents living below the poverty line                        |Income           |
 | binnedInc*             | Binned income level                                                        |Income           |
 
-```{r}
-str(df) #names of columns and variable types
-```
+
 ## Data Quality
+
 The dataset was inspected using the following methods: 
 
 1. Calucating the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
@@ -260,7 +259,7 @@ Summary Statistics:
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
-The basic summary statistics seem plausible and don't contain any concerning results.  As expected, the percentage of county residents without a highschool degree is relatively low with a median of 17%, and roughly half of the percentage as those that have completed high school.  It was also interesting to note that the interquartile range (IQR) was very similar for *PctHS18_24* and *PctHS25_Over* with the primary difference being at the extreme ends - the 18-24 range went as low as 0% and a max of 72.%, while the over 25 age group more centered with a minimum of 7.5% and a max of 54%.  This should be expected because the over-25 age group likely includes more people, as well as the extra time and opportunity to complete a high school degree.  
+The basic summary statistics seem plausible and don't contain any concerning results.  As expected, the percentage of county residents without a highschool degree is relatively low with a median of 17%, and roughly half of the percentage as those that have completed high school (34%).  It was also interesting to note that the interquartile range (IQR) was very similar for *PctHS18_24* and *PctHS25_Over* with the primary difference being at the extreme ends - the 18-24 range went as low as 0% and a max of 72.%, while the over 25 age group more centered with a minimum of 7.5% and a max of 54%.  This should be expected because the over-25 age group likely includes more people, as well as the extra time and opportunity to complete a high school degree.  
 
 The following histogram plots show the distributions of the education variables.
 
@@ -290,9 +289,9 @@ boxplot(df$PctBachDeg25_Over,main=title[5],col=color[5],ylab=y[2],ylim=yl,
         xlab=paste(c('n=',   sum(df$PctBachDeg25_Over>=0, na.rm=TRUE)),collapse=""))
 ```
 
-Of the five variables considered, only *PctHS18_24* showed a normal distribution.  The other variables had some skew, either positive or negative.  The variable *PctNoHS18_24*, no high school education, for example showed a left skew meaning that smaller percentages, 10-20%, were much more common than high percentages, 30+%.  Conversely, the distribution of county residents that only had a high school education, *PctHS25_Over*, had a postive right skew, with highly percentages much more common than low percentages.  
+Of the five variables considered, only *PctHS18_24* showed a normal distribution.  The other variables had some skew, either positive or negative.  The variable *PctNoHS18_24*, no high school education, for example showed a right skew meaning that smaller percentages, 10-20%, were much more common than high percentages, 30+%.  Conversely, the distribution of county residents that only had a high school education, *PctHS25_Over*, had a left skew, with highly percentages much more common than low percentages.  
 
-The variable *PctBachDeg18_24* was the most extreme distribution with a far-left skew.  This is likely due to the deinition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, the majority of considered residents would not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  For this reason, *PctBachDeg18_24* will not be considered a key variable.
+The variable *PctBachDeg18_24* was the most extreme distribution with a far-right skew.  This is likely due to the definition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, the majority of considered residents would not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  For this reason, *PctBachDeg18_24* will not be considered a key variable.
 
 ## Insurance Coverage
 
