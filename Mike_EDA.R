@@ -195,3 +195,19 @@ test("Black")
 test("Asian")
 test("White")
 test("Other")
+
+
+x <- names(df)[!names(df) %in% c("deathRate", "X")]
+
+vars <- c()
+cors <- c()
+
+for (i in x) { 
+  if (class(df[ ,i]) == "numeric") {
+    vars <- c(vars,i)
+    cors <- c(cors,round(cor(df$deathRate,df[ ,i]),digits = 4))
+  }
+}
+
+cor_df = data.frame(vars,cors)
+cor_df <- cor_df[order(abs(cor_df$cors),decreasing=T),]

@@ -21,11 +21,11 @@ library(stringr)
 
 # Introduction
 
-This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future outcomes cancer. We are a team of data scientists motivated to in promote understanding the societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
+This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future cancer outcomes. We are a team of data scientists motivated to in promote understanding the societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
 
 ## Research Question
 
-Our task was to answer these two key research quesitons :
+Our task was to answer these two key research quesitons:
 
 1. What are the key county level characteristics associated with mortality rates from cancer?
 2. Are there trends in county level characteristics that can be identified to inform social intervention to decrease cancer mortality rates?
@@ -36,25 +36,25 @@ df <- read.csv("cancer.csv")
 class(df) # dimensions are 3047 rows x 30 columns
 dim(df) # dimensions of the data set
 ```
-The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county for a number of different ways. The dataset provided came with with a mininaml data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similiarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
+The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county for a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similiarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
 
 
 **Table 1. Data Dictionary:**
 
 | Variable Name          | Variable Description                                                       |category         |
 |------------------------|----------------------------------------------------------------------------|-----------------|
-| deathRate*             | rate of deaths due to cancer                                               |outcome          |
-| avgAnnCount            | 2009 - 2013 mean incidents of cancer per county.                           |cancer indcidence|
-| Geography*             | Description of county location  (county name, state)                       |county           |
-| popEst2015             | County population, estimated during 2015                                   |population/Birth |
-| BirthRate*             |                                                                            |population/Birth |
-| MedianAge*             | Median age of county residents                                             |age         |
-| MedianAgeMale*         | Median age of Male county residents                                        |age         |
-| MedianAgeFemale*       | Median age of Female county residents                                      |age         |
-| PctWhite*              | % of residents with race designation: White                                |ethnicity   |
-| PctBlack*              | % of residents with race designation: Black                                |ethnicity   |
-| PctAsian*              | % of residents with race designation: Asian                                |ethnicity   |
-| PctOtherRace*          | % of residents with race designation: Other                                |ethnicity   |
+| deathRate*             | rate of deaths due to cancer                                               |Outcome          |
+| avgAnnCount            | 2009 - 2013 mean incidents of cancer per county.                           |Cancer incidence|
+| Geography*             | Description of county location  (county name, state)                       |County           |
+| popEst2015             | County population, estimated during 2015                                   |Population/Birth |
+| BirthRate*             |                                                                            |Population/Birth |
+| MedianAge*             | Median age of county residents                                             |Age         |
+| MedianAgeMale*         | Median age of Male county residents                                        |Age         |
+| MedianAgeFemale*       | Median age of Female county residents                                      |Age         |
+| PctWhite*              | % of residents with race designation: White                                |Ethnicity   |
+| PctBlack*              | % of residents with race designation: Black                                |Ethnicity   |
+| PctAsian*              | % of residents with race designation: Asian                                |Ethnicity   |
+| PctOtherRace*          | % of residents with race designation: Other                                |Ethnicity   |
 | AvgHouseholdSize*      | Average household size, number of people                                   |Household/Marital|
 | PercentMarried*        | % maried                                                                   |Household/Marital|
 | PctMarriedHouseholds*  | % of households that are married                                           |Household/Marital|
@@ -64,14 +64,14 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | PctBachDeg18_24*       | % of residents, age 18-24, with a bachelor's degree                        |Education        |
 | PctHS25_Over*          | % of residents, age over 25, with a high school degree (highest education) |Education        |
 | PctBachDeg25_Over*     | % of residents, age over 25, with a bachelors degree                       |Education        |
-| PctPrivateCoverage     | % of residents with private insurance coverage                             |insurance        |
-| PctEmpPrivCoverage*    | % of residents with employee-provided private insurance coverage           |insurance        |
-| PctPublicCoverage      | % of residents with public insurance coverage                              |insurance        |
+| PctPrivateCoverage     | % of residents with private insurance coverage                             |Insurance        |
+| PctEmpPrivCoverage*    | % of residents with employee-provided private insurance coverage           |Insurance        |
+| PctPublicCoverage      | % of residents with public insurance coverage                              |Insurance        |
 | PctEmployed16_Over*    | % of residents, age over 16, that are employed                             |Employment       |
 | PctUnemployed16_Over*  | % of residents, age over 16, that are unemployed                           |Employment       |
-| medIncome*             | Median Income                                                              |income           |
-| povertyPercent         | % of county residents living below the poverty line                        |income           |
-| binnedInc*             | Binned income level                                                        |income           |
+| medIncome*             | Median Income                                                              |Income           |
+| povertyPercent         | % of county residents living below the poverty line                        |Income           |
+| binnedInc*             | Binned income level                                                        |Income           |
 
 ```{r}
 str(df) #names of columns and variable types
@@ -79,15 +79,15 @@ str(df) #names of columns and variable types
 ## Data Quality
 The dataset was inspected using the following methods: 
 
-1. calucating the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
+1. Calucating the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
 
-2. visually inspect univariate data with histograms and boxplots  
+2. Visually inspect univariate data with histograms and boxplots  
 
 3. Scatterplots were completed for all independent variables against the deathrate. Note some scatterplots are not shown.  
 
 ### Missing Data
 **PctSomeCol18_24:**
-The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
+The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) - `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
 
 Tim: After thinking about this some more, I would vote to keep in this data with the caveat that there is a significant amount of data missing. the smaller subset might show something. 
 
@@ -95,17 +95,17 @@ Tim: After thinking about this some more, I would vote to keep in this data with
 The variable for percentage of residents over 16 years old and employed has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
 
 ### Data suspected of being erroroneous
+
 **Median Age: **
-There are `r sum(is.na(df$MedianAge[df$MedianAge>300]))` observations (`r round(100*(sum(is.na(df$MedianAge[df$MedianAge>300]))/(nrow(df))),5)`%`with median age>300. A median age of a county over 300 years of age is impossible in real life and these observations were removed.  This represents a small portion of the dataset. 
+There are `r sum(df$MedianAge>300)` observations (`r round(100*(sum(df$MedianAge>300)/(nrow(df))),5)`%)with Median Age > 300. A median age of a county over 300 years of age is impossible in real life and these values were set to NA. This represents a small portion of the dataset. 
 
 **Household size below:**
-There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
+There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),digits=3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
 
 **avgAnnCount:**
-There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%`with the same value of 1962.667684.There are nine  It is likely these data points are erroneous; however, there are 9 observations greater than 1962.667684; therefore, we cannot determine conclusively which are erroneous. For this reason we kept these observations in the dataset. 
-
-
+There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is dispropritionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 1000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
 ```{r}
+
 # Dataframe created to count frequency of each county name. 
 GeoFreq <-as.data.frame(table(df$Geography))
 GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once 
@@ -113,7 +113,8 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 
 
 # Univariate Analysis of Key Variables
-Univariate analysis is shown in completness because of the issues described. It is important to have a strong understanding of the data 
+Univariate analysis is shown in completness because of the issues described. It is important to have a strong understanding of the data.
+
 ## Outcome deathRate and Average Annual Rate of Cancer
 
 Summary Statistics:
@@ -125,20 +126,26 @@ summary(data.frame(df$deathRate, df$avgAnnCount) )
 ```
 
 ```{r,fig.height=5, fig.width=10 }
-par(mfrow=c(2,4))
+layout(matrix(c(1,2,0,0,3,4,5,6),2,4,byrow=T)) #Switched this to separate incidence and mortaility
 color = c('lightskyblue1', 'gray')
 
 title = 'Cancer Death Rate per County'
-hist(df$deathRate, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color[1])
-boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
+hist(df$deathRate, main= title ,breaks =30, ylab = 'number of counties', 
+     xlab = ''  ,col = color[1])
+boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , 
+         xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
 
 title = 'Average Annual Count of Cancer'
-hist(df$avgAnnCount,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Avg Annual Count',col =color[2])
-boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
+hist(df$avgAnnCount,main= title ,breaks =30, ylab = 'number of counties', 
+     xlab = 'Avg Annual Count',col =color[2])
+boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , 
+         xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
 
 title = 'log Avg Annual Count of Cancers'
-hist(log(df$avgAnnCount,10),main= title ,breaks =30, ylab = 'number of counties', xlab = 'log10 Avg Annual Count',col =color[2])
-boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Annual Count' , xlab  = paste(c('n = ' , sum(log(df$avgAnnCount,10)>0, na.rm=TRUE) ), collapse= ""))
+hist(log(df$avgAnnCount,10),main= title ,breaks =30, ylab = 'number of counties', 
+     xlab = 'log10 Avg Annual Count',col =color[2])
+boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Annual Count' , 
+         xlab  = paste(c('n = ' , sum(log(df$avgAnnCount,10)>0, na.rm=TRUE) ), collapse= ""))
 ```
 
 
@@ -169,7 +176,7 @@ boxplot(df$BirthRate,main=title[3],col='gray',ylab=y[4],xlab=paste(c('n=',sum(df
 ```{r}
 #sum((df$MedianAge>300), na.rm=TRUE) # identifies 30 observations median age greater than 300
 df$MedianAge_gr100 = 0 #creates a new column to save the dubious data
-df$MedianAge_gr100[df$MedianAge>300]<- df$MedianAge[df$MedianAge>300]  # saves the dubious data
+df$MedianAge_gr100[df$MedianAge>300] <- df$MedianAge[df$MedianAge>300]  # saves the dubious data
 df$MedianAge[df$MedianAge>300]<- NA #update the Median Age
 ```
 
@@ -187,7 +194,9 @@ boxplot(df$MedianAge,      main=title[1],col=color[1],ylab=y[2],xlab=paste(c('n=
 boxplot(df$MedianAgeMale,  main=title[2],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(df$MedianAgeMale>=0, na.rm=TRUE)),collapse=""))
 boxplot(df$MedianAgeFemale,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=',sum(df$MedianAgeFemale>=0, na.rm=TRUE)),collapse=""))
 ```
+
 ## Ethnicity
+
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digits=3 )
@@ -209,10 +218,12 @@ boxplot(df$PctBlack,main=title[2],col=color[2],ylab=y[2],xlab=paste(c('n=',sum(d
 boxplot(df$PctAsian,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=',sum(df$PctAsian>=0, na.rm=TRUE)),collapse=""))
 boxplot(df$PctOtherRace,main=title[4],col=color[4],ylab=y[2],xlab=paste(c('n=',sum(df$PctOtherRace>=0, na.rm=TRUE)),collapse=""))
 ```
+
 ## Household and Marital status
+
 There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we left these observations in the dataset. 
 
-Summary Statistics
+Summary Statistics:
 ```{r}
 summary(data.frame(df$PercentMarried, df$AvgHouseholdSize, df$PctMarriedHouseholds), digits=3 )
 ```
@@ -315,7 +326,7 @@ boxplot(df$PctPublicCoverage, main=title[3],col=color[3],ylab=y[2],ylim =yl,
 
 ## Employment
 
-Other than teh 152 missing data observations, the two variables describing employment of residents 16 years or older show a a normal distribution.  
+Other than the 152 missing data observations, the two variables describing employment of residents 16 years or older show a normal distribution.  
 
 Summary Statistics:
 
@@ -344,7 +355,7 @@ boxplot(df$PctHS18_24,       main=title[2],col=color[2],ylab=y[2],ylim=yl,
 
 
 
-Median income was provide for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew. Percent residents below thet poverty level was also included the dataset and presents a right skew as well. 
+Median income was provided for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew. Percent of residents below the poverty level was also included the dataset and presents a right skew as well. 
 
 The binned income 
 ```{r ,fig.height=4, fig.width=12 }
@@ -352,7 +363,7 @@ df$binnedInc <- factor(df$binnedInc , levels = c('[22640, 34218.1]', '(34218.1, 
 summary(df$binnedInc)
 ```
 ```{r ,fig.height=3, fig.width=12 }
-boxplot(df$medIncome ~ df$binnedInc, data = df, cex.axis = .58 ,main = "income categories", ylab = "median income", col='lightskyblue1')
+boxplot(df$medIncome ~ df$binnedInc, data = df, cex.axis = .58 ,main = "Income categories", ylab = "Median Income", col='lightskyblue1')
 ```
 
 ```{r,fig.height=2.5, fig.width=10 }
@@ -360,84 +371,63 @@ par(mfrow=c(1,4))
 color = 'lightskyblue1'
 
 title =  'Median Income'
-hist(df$medIncome, main= title ,breaks =30, ylab = 'number of counties', xlab = ''  ,col = color)
+hist(df$medIncome, main= title ,breaks =30, ylab = 'Number of Counties', xlab = ''  ,col = color)
 boxplot( df$medIncome,main = title, col = color, ylab = 'Median Income'  , xlab  = paste(c('n = ' ,  sum(df$medIncome>=0, na.rm=TRUE) ),collapse= ""))
 
 color = 'gray'
 title = 'Percent below Poverty Level'
-hist(df$povertyPercent,main= title ,breaks =30, ylab = 'number of counties', xlab = 'Avg Annual Count',col =color)
+hist(df$povertyPercent,main= title ,breaks =30, ylab = 'Number of Counties', xlab = 'Avg Annual Count',col =color)
 boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Poverty Level' , xlab  = paste(c('n = ' , sum(df$povertyPercent>0, na.rm=TRUE) ), collapse= ""))
 ``` 
+
 # Analysis of Key Relationships
-Table below show below shows the correlation coeffiencients fof r
+
+Table below show below shows the correlation coeffiencients for r
 ```{r, collapse = TRUE, , tidy =TRUE}
+x <- names(df)[!names(df) %in% c("deathRate", "X")]
 
-# Mike replace with your For loop 
+vars <- c()
+cors <- c()
 
-cor(df$deathRate, df$avgAnnCount,  use = 'complete.obs')
-cor(df$deathRate, df$BirthRate,  use = 'complete.obs')
-cor(df$deathRate, df$MedianAge,  use = 'complete.obs')
-cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs')
-cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs')
-cor(df$deathRate, df$PctWhite,  use = 'complete.obs')
-cor(df$deathRate, df$PctBlack,  use = 'complete.obs')
-cor(df$deathRate, df$PctAsian,  use = 'complete.obs')
-cor(df$deathRate, df$PctOtherRace,  use = 'complete.obs')
-cor(df$deathRate, df$PercentMarried,  use = 'complete.obs')
-cor(df$deathRate, df$PctMarriedHouseholds,  use = 'complete.obs')
-cor(df$deathRate, df$AvgHouseholdSize,  use = 'complete.obs')
-cor(df$deathRate, df$popEst2015,  use = 'complete.obs')
-cor(df$deathRate, df$PctNoHS18_24,  use = 'complete.obs')
-cor(df$deathRate, df$PctHS18_24,  use = 'complete.obs')
-cor(df$deathRate, df$PctSomeCol18_24,  use = 'complete.obs')
-cor(df$deathRate, df$PctBachDeg18_24,  use = 'complete.obs')
-cor(df$deathRate, df$PctHS25_Over,  use = 'complete.obs')
-cor(df$deathRate, df$PctBachDeg25_Over,  use = 'complete.obs')
-cor(df$deathRate, df$PctPrivateCoverage,  use = 'complete.obs')
-cor(df$deathRate, df$PctEmpPrivCoverage,  use = 'complete.obs')
-cor(df$deathRate, df$PctPublicCoverage,  use = 'complete.obs')
-cor(df$deathRate, df$PctEmployed16_Over,  use = 'complete.obs')
-cor(df$deathRate, df$PctUnemployed16_Over,  use = 'complete.obs')
-cor(df$deathRate, df$povertyPercent,  use = 'complete.obs')
-cor(df$deathRate, df$medIncome,  use = 'complete.obs')
+for (i in x) { 
+  if (class(df[ ,i]) == "numeric") {
+    vars <- c(vars,i)
+    cors <- c(cors,round(cor(df$deathRate,df[ ,i], use = 'complete.obs'),digits = 4))
+  }
+}
+
+cor_df <- data.frame(vars,cors,row.names=NULL)
+cor_df <- cor_df[order(abs(cor_df$cors),decreasing=T),]
+
+kable(cor_df,col.names=c("Variable", "Correlation Coefficient"),
+      row.names=F, 
+      caption="Correlation Coefficients of Indepent Variables to Death Rate")
 ```
 
-
-## Population Birth rate
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	avgAnnCount		| `r cor(df$deathRate, df$avgAnnCount,  use = 'complete.obs')	`|
-|	BirthRate		| `r cor(df$deathRate, df$BirthRate,  use = 'complete.obs')	`|
-|	popEst2015		| `r cor(df$deathRate, df$popEst2015,  use = 'complete.obs')	`|
-
-
-## Age 
-Age did not show any correlation with death rate. 
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	MedianAge		| `r cor(df$deathRate, df$MedianAge,  use = 'complete.obs')`|
-|	MedianAgeMale		| `r cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs')	`|
-|	MedianAgeFemale		| `r cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs')	`|
-
-
-## Ethnicity
-|	Independent variable		|	cor to death rate	|
-|---------------------|----------------|
-|	PctWhite		| `r cor(df$deathRate, df$PctWhite,  use = 'complete.obs')	`|
-|	PctBlack		| `r cor(df$deathRate, df$PctBlack,  use = 'complete.obs')	`|
-|	PctAsian		| `r cor(df$deathRate, df$PctAsian,  use = 'complete.obs')	`|
-|	PctOtherRace		| `r cor(df$deathRate, df$PctOtherRace,  use = 'complete.obs')	`|
+# MIKE TO ADD HIS SECTION HERE 
 
 ```{r,fig.height=4, fig.width=6 }
 r_cor = round(cor(df$deathRate, df$PctBlack,  use = 'complete.obs'),5)
 scatterplot(df$PctBlack, df$deathRate, xlab="Percentage of residents black", 
-            ylab="Death Rate",main="Cancer death rate vs. percent county of black ethnicity",legend ('topleft',bty='n', legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,250,100,maxColorValue=255)))
+            ylab="Death Rate",main="Cancer death rate vs. percent county of black ethnicity",
+            legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
+            col=c('red','green', rgb(0,0,250,100,maxColorValue=255)))
 ```
+
+# END MIKE SECITON
 
 ## Household size and Marital status 
 
-Average household size did not have any correlation with death rate. However, being married and and being married
+Average household size did not have any correlation with death rate. However, percent married and percent married households did.
 
+```{r, collapse = TRUE, , tidy =TRUE}
+
+#sub <- cor_df[cor_df$vars %in% c("povertyPercent"),]
+#kable(sub,
+      #row.names=F, 
+      #caption="Correlation Coefficients of Indepent Variables to Death Rate",
+      #col.names=c("Variable", "Correlation Coefficient"))
+```
 |	Independent variable		|	cor to death rate	|
 |---------------------|----------------|
 |	PercentMarried		| `r cor(df$deathRate, df$PercentMarried,  use = 'complete.obs')	`|
@@ -445,7 +435,7 @@ Average household size did not have any correlation with death rate. However, be
 |	AvgHouseholdSize		| `r cor(df$deathRate, df$AvgHouseholdSize,  use = 'complete.obs')	`|
 
 ## Education
-To begin, a correlation matrix of the education variables is shown vs. the target variable *deathRate*
+To begin, a correlation table of the education variables is shown vs. the target variable *deathRate*
 
 |	Independent variable		|	cor to death rate	|
 |---------------------|----------------|
