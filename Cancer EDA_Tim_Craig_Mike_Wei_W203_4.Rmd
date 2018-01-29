@@ -21,7 +21,7 @@ library(stringr)
 
 # Introduction
 
-This report presents an initial exporatory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future cancer outcomes. We are a team of data scientists motivated to promote the understanding of societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
+This report presents an initial exploratory data analysis identifying the key features associated with cancer rates and deaths based on geographic location in the form of a county in the United States. The  goal is to use the findings from the analysis to develop strategies to improve future cancer outcomes. We are a team of data scientists motivated to promote the understanding of societal factors that impact mortality rates of cancer among various communities in the United States.  We are grateful for the grant awarded to us by a health government agency to complete this study. 
 
 ## Research Question
 
@@ -36,7 +36,7 @@ df <- read.csv("cancer.csv")
 class(df) # dimensions are 3047 rows x 30 columns
 dim(df) # dimensions of the data set
 ```
-The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county in a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the variables not defined were self explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
+The dataset that we explored contained `r nrow(df)` observations and `r ncol(df)` variables. The majority of the data types are either number or integer with only Geography and binnedInc as factors. The death rate was designated the target variable by the health government agency. Each observation represents a single county within the United States, and each variable describes that county in a number of different ways. The dataset provided came with a minimal data dictionary and is presented in Table 1. Most of the undefined variables were self-explanatory by key notations in the variable name such 'Pct' for percent, 'Avg' for average, and 'med' for median. The units for death rate and birth rates were not provided and without a means to confirm the units we chose to leave these variables without units. We further grouped variables into categories based on similarities to help organize the analysis. Some data processing was required to address select issues as described in the section *Data Quality*.
 
 
 **Table 1. Data Dictionary:**
@@ -63,7 +63,7 @@ The dataset that we explored had `r nrow(df)` observations and `r ncol(df)` vari
 | PctSomeCol18_24*       | % of residents, age 18-24, with some college education (no degree)         |Education        |
 | PctBachDeg18_24*       | % of residents, age 18-24, with a bachelor's degree                        |Education        |
 | PctHS25_Over*          | % of residents, age over 25, with a high school degree (highest education) |Education        |
-| PctBachDeg25_Over*     | % of residents, age over 25, with a bachelors degree                       |Education        |
+| PctBachDeg25_Over*     | % of residents, age over 25, with a bachelor's degree                       |Education        |
 | PctPrivateCoverage     | % of residents with private insurance coverage                             |Insurance        |
 | PctEmpPrivCoverage*    | % of residents with employee-provided private insurance coverage           |Insurance        |
 | PctPublicCoverage      | % of residents with public insurance coverage                              |Insurance        |
@@ -81,19 +81,21 @@ The dataset was inspected using the following methods:
 
 1. Calculating  the min, max, mean, median, 1st and 3rd quartile and identifying missing values (ie NA) using summary function 
 
-2. Visually inspect univariate data with histograms and boxplots  
+2. isually inspect univariate data with histograms and boxplots. Log transformations were employed to aid inspection for data extremely skewed (e.g. large changes in magnitude).  
 
-3. Scatterplots were completed for all independent variables against the deathRate variable. Note some scatterplots are not shown.  
+3. Scatterplots were completed for all independent variables against the deathRate variable. Note some scatterplots are not shown. 
+
+Data issues encounter can be grouped as either missing data or data suspected as erroneous
 
 ### Missing Data
 
 **PctEmployed16_Over**
-The variable for percentage of residents with some college education, aged 18-24, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) - `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the variable's rows.  We will conduct the analysis with the observations with the data. 
+The variable for percentage of residents with over 16 years old, had `r sum(is.na(df$PctEmployed16_Over))` missing values (NA) - `r round(100*(sum(is.na(df$PctEmployed16_Over)))/(nrow(df)),3)`% of the observations.
 
 **PctSomeCol18_24:**
-The variable for percentage of residents over 16 years old and employed has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the variable's rows.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
+The variable for percentage of residents with some college education, aged 18-24, has `r sum(is.na(df$PctSomeCol18_24))` missing values (NA).  This represents a very large portion of the overall dataset - `r round(100*(sum(is.na(df$PctSomeCol18_24)))/(nrow(df)),3)`% of the observations.  Due to the large number of missing values, this variable was not considered a key variable of the dataset.
 
-### Data suspected of being erroroneous
+### Data suspected of being erroneous
 
 **Median Age: **
 There are `r sum(df$MedianAge>300)` observations (`r round(100*(sum(df$MedianAge>300)/(nrow(df))),5)`%)with Median Age > 300. A median age of a county over 300 years of age is impossible in real life and these values were set to NA. This represents a small portion of the dataset. 
@@ -102,21 +104,19 @@ There are `r sum(df$MedianAge>300)` observations (`r round(100*(sum(df$MedianAge
 There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),digits=3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
 
 **avgAnnCount:**
-There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is disproportionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 10000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
+There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is highly probable that these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is disproportionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 10000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
 
 
 
 # Univariate Analysis of Key Variables
 
-Univariate analysis is shown in completeness because of the issues described. It is important to have a strong understanding of the data.
+Univariate analysis is shown in completeness because of the issues described to allow for a strong understanding of the data and its issues. We believe this is important to understand the limitations of the data, analysis and conclusions drawn.
 
 ## Outcome deathRate and Average Annual Rate of Cancer
 
-Since we do not know the units of cancer mortality rate (ie deathRate) variable, we have refrained from univariate analysis except to state that the data is normally distributed. In contrast, the average annual count of cancer is extremely right skewed due do magnitude changes. To help visualize the distribution, a log transformation was performed and produced a normal distribution curve in the histogram except for a bar count. A highly suspect bar is revealed when a histogram is performed on the transformed data. As discussed in the Data Quality section, we have elected to keep the data in the dataset.    
+Since we do not know the units of the cancer mortality rate (ie deathRate) variable, we have refrained from univariate analysis except to state that the data is normally distributed. In contrast, the average annual count of cancer is extremely right skewed due do magnitude changes. To help visualize the distribution, a log transformation was performed and produced a normal distribution curve in the histogram with a highly suspect bar is revealed when a histogram is performed on the transformed data. As discussed in the Data Quality section, we have elected to keep the data depicted within this bar in the dataset.    
 
 Summary Statistics:
-
-The cancer mortality rates are normally distributed. However, the average annual count of cancer is extremely right skewed due do magnitude changes. To help visualize the distribution, a log transformation was performed and produced a normal distribution curve in the histogram except for a bar count  
 
 ```{r}
 summary(data.frame(df$deathRate, df$avgAnnCount) )
@@ -145,7 +145,7 @@ boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Ann
 
 ## Population, Birth Rate, and Geography
 
-The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the population helps visualize a distribution curve that looks normal. The birth rate is normally distributed with a very slight positive skew. We do not have the units for this variable so our analysis did not go further. We did perform a check to make sure there were no duplicate counties under the geography variable. 
+The counties ranged in population of `r min(df$popEst2015)` from `r df[df$popEst2015==min(df$popEst2015),'Geography']` to `r max(df$popEst2015)` in `r df[df$popEst2015==max(df$popEst2015),'Geography']`. There are `r sum(df$popEst2015>1e+6)` counties that are have populations greater than 1 million and this produces an extreme right skew when the population is graphed on a histogram. Log transformations of the population helps visualize a distribution curve that looks normal. The birth rate is normally distributed with a very slight positive skew. We do not have the units for birth rate so our analysis did not go further. We did perform a check to confirm there were no duplicate counties under the geography variable. 
 
 
 Summary Statistics:
@@ -171,7 +171,7 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 ```
 ## Age
 
-The 30 median age observations > 300 years were set to NA.  The median age overall, for males, and for females per county all provide normal distributions. The median and mean age of females in the county is a 2-3 years greater than that for males - and both values are close to the mean as well. Barring the data issues found in the median age variable, the age data available did not raise any concerns. 
+The 30 median age observations > 300 years were set to NA.  The median age overall, for males, and for females per county all provide normal distributions. The median and mean age of females in the county is 2-3 years greater than that for males - and both values are close to the mean as well. Barring the data issues found in the median age variable, the age data available did not raise any concerns. 
 
 ```{r}
 summary(data.frame(df$MedianAge, df$MedianAgeMale,df$MedianAgeFemale) )
@@ -199,8 +199,7 @@ boxplot(df$MedianAgeFemale,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=
 
 ## Ethnicity
 
-Most of the counties in the USA are predominantly white as shown by the left skewed histogram tallying the number of counties by percent white. As one would expect the minority ethnicities of Black, Asian, and Other Race are right skewed indicating some counties with sizeable minority populations where `r sum(df$PctBlack >= 50)` counties had a Black population 50% or greater. With the data we have available, it appears that we'll be able to get the most insight into the impact of the prominence of Black and White races, while the small percentages of Asian and other races may not be large enough to understand the impact.
-The ethnicity data did not raise any significant concerns. 
+Most of the counties in the USA are predominantly white as shown by the left skewed histogram tallying the number of counties by percent white. As one would expect the minority ethnicities of Black, Asian, and Other Race are right skewed indicating some counties with sizeable minority populations where `r sum(df$PctBlack >= 50)` counties had a Black population 50% or greater. With the data we have available, it appears that we'll be able to get the most insight into the impact of the prominence of Black and White races, while the small percentages of Asian and other races may not be large enough to understand the impact.Log transformations histograms of these variables didn't reveal any concerns (graphs not shown). The ethnicity data did not raise any significant concerns. 
 
 Summary Statistics:
 ```{r}
@@ -255,20 +254,20 @@ boxplot(df$PctMarriedHouseholds,main=title[3],col=color[3],ylab=y[2],ylim =yl,
 
 ## Education
 
-The variables related to education can roughly be grouped as: 
+The variables related to education are grouped as follows: 
 
 1. Some high school education (PctNoHS18_24)
 2. High school completed  (PctHS18_24, PctHS25_Over)
 3. Some college education (PctSomeCol18_24)
 4. Bachelor's degree completed (PctBachDeg18_24, PctBachDeg25_Over)
 
-As stated previously, the only variable for *some college education*, PctSomeCol18_24, had a significant portion of data missing, and thus will not be considered in this analysis.
+As stated previously, the only variable for *some college education*, PctSomeCol18_24, had a significant portion of data missing (75%), and thus will not be considered in this analysis.
 
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctNoHS18_24, df$PctHS18_24, df$PctHS25_Over, df$PctBachDeg18_24, df$PctBachDeg25_Over), digits = 4)
 ```
-The basic summary statistics seem plausible and don't contain any concerning results.  As expected, the percentage of county residents without a highschool degree is relatively low with a median of 17%, and roughly half of the percentage as those that have completed high school (34%).  It was also interesting to note that the interquartile range (IQR) was very similar for *PctHS18_24* and *PctHS25_Over* with the primary difference being at the extreme ends - the 18-24 range went as low as 0% and a max of 72.%, while the over 25 age group more centered with a minimum of 7.5% and a max of 54%.  This should be expected because the over-25 age group likely includes more people, as well as the extra time and opportunity to complete a high school degree.  
+The basic summary statistics did not contain any concerning results.  As expected, the percentage of county residents without a highschool degree is relatively low with a median of 17%, and roughly half of the percentage as those that have completed high school (34%).  It was also interesting to note that the interquartile range (IQR) was very similar for *PctHS18_24* and *PctHS25_Over* with the primary difference being at the extreme ends - the 18-24 range went as low as 0% and a max of 72.%, while the over 25 age group more centered with a minimum of 7.5% and a max of 54%.  This should be expected because the over-25 age group likely includes more people, as well as the extra time and opportunity to complete a high school degree.  
 
 The following histogram plots show the distributions of the education variables.
 
@@ -299,18 +298,19 @@ boxplot(df$PctBachDeg25_Over,main=title[5],col=color[5],ylab=y[2],ylim=yl,
 
 Of the five variables considered, only *PctHS18_24* showed a normal distribution.  The other variables had some skew, either positive or negative.  The variable *PctNoHS18_24*, no high school education, for example showed a right skew meaning that smaller percentages, 10-20%, were much more common than high percentages, 30+%.  Conversely, the distribution of county residents that only had a high school education, *PctHS25_Over*, had a left skew, with highly percentages much more common than low percentages.  
 
-The variable *PctBachDeg18_24* was the most extreme distribution with a far-right skew.  This is likely due to the definition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, the majority of considered residents would not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  For this reason, *PctBachDeg18_24* will not be considered a key variable.
+The variable *PctBachDeg18_24* was the most extreme distribution with a far-right skew.  This is likely due to the definition of the variable.  Most people start college at age 18 and finish by age 22-23.  Because the age window was 18-24, a majority of considered residents may not have had an opportunity to yet finish college.  This observed skew is less pronounced for the variable *PctBachDeg25_Over*, which includes all county residents over the age of 25.  
 
 ## Insurance Coverage
 
-There are three variables that are categorized under Insurance Coverage: PctPrivateCoverage, PctEmpPrivCoverage and PctPublicCoverage. 
+There are three variables that are categorized under Insurance Coverage: PctPrivateCoverage, PctEmpPriv- Coverage and PctPublicCoverage. The summary statistics shows that none of the three variables have missing values. The median percentage of people who have private coverage is the largest among the three types at 64.3%, followed by private employee coverage at 41.1% and public coverage at 36.3%.
+The histograms and the boxplots show that the PctPrivateCoverage variable is slightly skewed left. However it's close to the to normal distribution and the other two variables has normal distribution as well. So no transformation needs to be done and all three variables can be included in the analysis.
+
 
 Summary Statistics:
 ```{r}
 summary(data.frame(df$PctPrivateCoverage, df$PctEmpPrivCoverage, df$PctPublicCoverage), digits = 4)
 ```
 
-The summary above shows that none of the three variables have missing values. The percentage  of people who have private coverage is the largest  among the three. 
 
 ```{r,fig.height=2.5, fig.width=12 }
 par(mfrow=c(1,6))
@@ -332,7 +332,6 @@ boxplot(df$PctPublicCoverage, main=title[3],col=color[3],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',    sum(df$PctPublicCoverage>=0, na.rm=TRUE)),collapse=""))
 ```
 
-The histograms and the boxplots show that the PctPrivateCoverage variable is slightly skewed left. However it's close to the to normal distribution and the other two variables has normal distribution as well. So no transformation needs to be done and all three variables can be included in the analysis. 
 
 ## Employment
 
@@ -365,9 +364,9 @@ boxplot(df$PctUnemployed16_Over,       main=title[2],col=color[2],ylab=y[2],ylim
 
 ## Income and Poverty level
 
-Median income was provided for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset. Median income has a right skew indicating there are counties much greater median income above the mean. 
+Median income was provided for each county and assigned a bin containing 302-306 observations. We confirmed that the 10 income bins are based on the deciles of the median income of the dataset and confirmed proper binning with a boxplot. Median income has a right skew indicating there are counties much greater median income above the mean. 
 
-Percent of residents below the poverty level was also included the dataset and presents a right skew as well indicating select counties have sizeable portion of their residents in this condition. The poverty level is something all counties must address where if one interprets the inter-quartile range (IQR) of the boxplot, 50% of the counties have 12.2- 20.4% of their residents considered impoverished.  This means that the 25% most impoverished counties have 20.4% to as high as 47.4% of their residents in poverty. In terms of analysis, the income and poverty data did not raise any concerns. 
+Percent of residents below the poverty level presents a right skew as well indicating select counties have sizeable portion of their residents in this condition. When interpreting the inter-quartile range (IQR) of the boxplot, 50% of the counties have 12.2- 20.4% of their residents considered impoverished.  This means that the 25% most impoverished counties have 20.4% to as high as 47.4% of their residents in poverty. In terms of analysis, the income and poverty data did not raise any concerns. 
 
 ```{r ,fig.height=4, fig.width=12 }
 df$binnedInc <- factor(df$binnedInc , levels = c('[22640, 34218.1]', '(34218.1, 37413.8]', '(37413.8, 40362.7]', '(40362.7, 42724.4]', '(42724.4, 45201]', '(45201, 48021.6]', '(48021.6, 51046.4]' , '(51046.4, 54545.6]' , '(54545.6, 61494.5]' ,'(61494.5, 125635]' ))
@@ -391,7 +390,7 @@ boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Pove
 
 # Analysis of Key Relationships
 
-All independent varialbes were analyze for linear correleation with the deathRate. Those with a correlation were investigated further using a scatterplot or a boxplot comparison.
+All independent variables were analyze for linear orrelation with the deathRate. Those with a correlation were investigated further using a scatterplot or a boxplot comparison.
 
 Table below show below shows the correlation coefficients for r
 ```{r, collapse = TRUE, , tidy =TRUE}
@@ -457,7 +456,7 @@ scatterplot(df$PctMarried, df$deathRate, xlab="Percentage Married",
 ```
 
 ## Race vs. Death Rate
-Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, while there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
+Race has some interesting interactions with cancer death rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, while there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
 
 The race percentage variables have significant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows. Looking at these results, it appears that the death rate grows as the black percentage grows, while it decreases slightly as the white percentage grows. This is one area that has the potential to look at secondary effects. 
 
@@ -480,11 +479,11 @@ bplot_race(df$PctOtherRace, "Other")
 
 ## Age vs. Death Rate
 
-The interesting result about age compared to death rate is that the correlation is rather weak. One might guess that as a community ages, the death rate would grow. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
+The interesting result about age compared to death rate is that the correlation is rather weak. One hypothesis is that an older community ageswith older residents would have more people dying of cancer. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
 
 ## Education
 
-The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate. 
+The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  The population variable could have been used to estimate a quantity but We chose not to pursue this calculation for this report, but it may be something employed in the future with all percent variables to provide a better understanding of the data.
 
 ```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
 par(mfrow=c(1,2))
@@ -545,7 +544,7 @@ scatterplot(df$PctPrivateCoverage, df$deathRate, xlab="Percentage of residents w
 
 ## Employment
 
-Employments has appears to have one of the stronger relationships with the death rate. This would make sense, as employment offers better access to health care (and also is another area to look for secondary effects). The results here are fairly clear and follow a logical trend; the higher the percent employed, the lower the death rate. The higher the percent unemployed, the higher the death rate. 
+Employments appears to have one of the stronger relationships with the death rate. This would make sense, as employment offers better access to health care (and also is another area to look for secondary effects). The results here are fairly clear and follow a logical trend; the higher the percent employed, the lower the death rate. The higher the percent unemployed, the higher the death rate. 
 
 ```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
 par(mfrow=c(1,2))
@@ -583,6 +582,10 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
     under poverty level",legend ('topleft',bty='n', legend=paste('r=',r_cor) ), 
   col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 ```
+
+
+The bivariate analysis yielded six areas where a correlation to the target variable deathRate can be observed: Education, Poverty and Income, Insurance, Employment, Race, and Percent Married Household
+
 
 # Analysis Variables with high correlation and Secondary Effects
 
@@ -622,6 +625,9 @@ Percent poverty and median income appear to be inversely related to each other i
 *Insurance* 
 
 Public insurance is negatively correlated with private insurance, median income, and percent employed and percent with college degrees. This might be related to the converse of public insurance being private insurance where those with private insurance is secondary to being able to afford private insurance, having good paying job which may have been enabled with a college degree. In contrast, public insurance is associated with poverty, birth rate, and age. Poverty may be one underlying reason because impoverished individuals may not be able to afford quality healthcare. The positive correlation with age may indicate medicare if that is considered a public coverage. However, age in itself had not correlation with the death rate which may point to that the poverty association may mean that those who are dying of cancer have public coverage and are poor. Birth rate suggests the more kids one has the more likely one is to be on public insurance. 
+
+*Employment*
+Employment was postvely correlated with median income, percent white, percent married houshold, private insurance covereage, and college dgree. It appears employment and the inversely related unemployment may be a secondary effect especially to education quality. 
 
 *Race*
 
