@@ -490,25 +490,6 @@ bplot_race(df$PctOtherRace, "Other")
 
 The interesting result about age compared to death rate is that the correlation is rather weak. One guess that as a community ages, so do the ages. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
 
-```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
-par(mfrow=c(1,3))
-r_cor = round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)
-scatterplot(df$MedianAge, df$deathRate, xlab="Median Age", 
-     ylab="Death Rate",main="Cancer death rate vs. Median Age",legend ('topleft',bty='n',
-     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
-
-r_cor = round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)
-scatterplot(df$MedianAgeMale, df$deathRate, xlab="Median Age Male", 
-     ylab="Death Rate",main="Cancer death rate vs. Median Age Male",legend ('topleft',bty='n',
-     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
-
-r_cor = round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)
-scatterplot(df$MedianAgeFemale, df$deathRate, xlab="Median Age Female", 
-     ylab="Death Rate",main="Cancer death rate vs. Median Age Female",legend ('topleft',bty='n',
-     legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
-```
-
-
 
 ## Education
 
@@ -618,7 +599,7 @@ This is a challenging dataset due to presence of multiple confounding variables 
 The following correlation matrix includes variables that were deemed to be the 'key' variables of the dataset and showed at least moderate correlation with the target variable, deathRate.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
 
 ```{r}
-cr <- cor(df[, c("PctWhite","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctPrivateCoverage",
+cr <- cor(df[, c("PctWhite","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctBachDeg18_24","PctNoHS18_24","PctPrivateCoverage",
                   "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use="complete.obs")
 
 corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, title="All variables", method="square",
