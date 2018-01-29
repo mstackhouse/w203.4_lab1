@@ -649,7 +649,7 @@ The 75% missing values in PctSomeCol18_24 did weaken this variable's value to in
 
 Per our first research question key county level characteristics associated with mortality rates from cancer, our team found 6 areas in the dataset that is discussed below.  
 Education - Percent of residents with a HS degree positively correlated with greater cancer death rates. In contrast, higher percentages of residents with a bachelor's degree correlated with lower death rates. This was observed in the 18-24 residents (r, BS: -0.2878 vs HS: 0.2620)  and more pronounced in the 25 years or older residents (r, BS -0.4855 vs HS: 0.4046).  
-Percent residents in poverty had a moderate correlation with death rate (r = 0.4294). Not surprising, median income was negatively correlated (r = xxxx)
+Percent residents in poverty had a moderate correlation with death rate (r = 0.4294). Not surprising, median income was negatively correlated (r =-0.4286)
 Insurance -  Percent of residents in a county with public insurance positively correlated with cancer deathrate (r = 0.4046)  in contrast to those counties with higher percent of residents with private insurance (r= -0.3861). Employee private coverage had a less pronounced negative correlation. We identified the percent of residents with employee private coverage to be a possible secondary effort included in the percent with private coverage. 
 Percent employment was had a moderate negative correlation (r= -0.4120) and not surprisingly percent unemployment was positively correlated (r= 0.3784). Percent employment may be a secondary effect of private insurance because employed individual may have access to employee benefits including health insurance. We noted employment as a secondary effect because percent residents with private coverage had a greater correlation than percent with employee private insurance.
 Race showed a weak positive correlation for counties with percent black with death rate (r = 0.2570) and a negative correlation for the percent white in a county. <<The weak correlation indicates it is likely a secondary effect as percent black was associated with poverty and public insurance. >>
@@ -671,7 +671,10 @@ Poverty was the highest positive correlation to cancer death. There are a lot of
 
 **Insurance**
 
-need text
+Public Insurance shamefully has a moderate positive correlation with cancer death rates which is in stark contrast to private insurance moderate negative correlation. Insurance may be viewed as a construct for quality of health care services. It is generally known that healthcare providers do not accept all health care insurance. This is a place to explore the differences between private and public health coverage and identify what might be improved in the public plans. 
+
+
+Further analysis with this dataset might include utilizing the average annual count of cancer cases variable (avgAnnCount). This variable can be dividing by the population variable (popEst2015) to yield a cancer rate. This can then be used as an outcome for cancer cases using the same exploratory methodology. In addition, if a cancer death to cancer rate ratio can be calculated by dividing the deathRate variable by this calculated cancer rate variable where a ratio closer to zero would indicate a cancers that do not progress to death and a ratio near one would indicate a greater number of cancers progressing to death. Since different types of cancers have different etiologies, it would be prudent to pursue data to identify the different cancer types. A low cancer death to cancer rate ratio may be more dependent on fast spreading cancers versus those that take time to progress. 
 
 In conclusion we believe Education, Poverty and Public insurance are the three areas that can inform social intervention. Further analysis is warranted to investigate these findings in this exploratory analysis to confirm their validity and reproducibility before identifying the social interventions. These variables can then be used to measure the interventions' outcomes. 
 
