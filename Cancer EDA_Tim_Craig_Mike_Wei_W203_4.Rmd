@@ -594,9 +594,9 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
 
 # Analysis Variables with high correlation and Secondary Effects
 
-This is a challenging dataset due to presence of multiple confounding variables - variables that can influence both the dependent (target) variable, as well as other independent variables.  
+This is a challenging dataset due to presence of multiple potentially confounding variables - variables that can influence both the dependent (target) variable, as well as other independent variables.  
 
-To consider these types of variables, the following correlation matrix was created for variables in the dataset.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
+To help identify these types of variables, the following correlation matrix was created for variables in the dataset.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentionally ordered to group similarly-correlated variables together.
 
 **Independent Variable Correlation Matrix**
 
@@ -615,6 +615,23 @@ corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, method
 The correlation matrix shows in multiple ways that each variable of the dataset cannot be considered a truly *independent* variable.  For example, the variables concerning insurance and education all correlate with the other variables of that subgroup.  For example, the percent of county residents on either private or public insurance are highly correlated - a strong percentage in one shows a smaller percentage in the other.  Likewise, high percentages of high school only education result in lower percentages of college educated residents, and vice versa.  This observation suggests that no one variable is necessarily more important that the other within the subgroup, but rather these variables are measuring multiple possible outcomes on a range of related results (e.g. no high school education, high school only, college educated, etc.)
 
 The variables that consistently showed small correlations with other variable included BirthRate, popEst2015 (population), and AvgHouseholdSize.  
+
+The analysis of key relationships identified six areas where a correlation to the target variable deathRate can be observed. Below are further discussions on each grouping in preparation of identifying characteristics associated with cancer death rate to inform social intervention.
+
+*Education*
+To further elaborate, the two different age groups 18-24 and 25 and older did yield different correlations and as mentioned one may be a secondary effect of the other. While the 25 or older percentages may have yielded higher correlations, these variables may be secondary to the 18-24 percentages. For example,  if a county school district has a tradition of good schools preparing their students for college, then the high percentages in the PctBachDeg18_24 variable  may be more informative to identify interventions that can be applied to the counties with low percentages in the PctBachDeg18_24.
+
+*Poverty and Income*
+ Percent poverty and median income appear to be inversely related to each other in that the greater one's income the less likely one is in poverty. Poverty is the variable positively correlated with death rate and may be a good candidate variable to identify interventions to decrease this correlation. Variables positively correlated to Poverty include percent unemployed and percent Black. Both may be secondary variables to poverty because if one does not have a job one is likely to be at greater risk of becoming impoverished and being black may be related to discrimination and less opportunities.  Median Income is has several variables positively correlated with it and includes percent employed, percent private coverage, percent married household , percent college degree, and percent Asia. Having more positively correlated variables may lead to more secondary effects to investigate and may suggest poverty may be the better choice variable to inform decisions. 
+
+
+**Insurance**
+
+**Race**
+
+**Marriage**
+
+
 
 
 # Conclusion
@@ -654,7 +671,9 @@ Poverty was the highest positive correlation to cancer death. There are a lot of
 
 **Insurance**
 
-need to add
+need text
+
+In conclusion we believe Education, Poverty and Public insurance are the three areas that can inform social intervention. Further analysis is warranted to investigate these findings in this exploratory analysis to confirm their validity and reproducibility before identifying the social interventions. These variables can then be used to measure the interventions' outcomes. 
 
 
 
