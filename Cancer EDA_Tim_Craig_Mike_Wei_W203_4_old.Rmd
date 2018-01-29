@@ -102,7 +102,7 @@ There are `r sum(df$MedianAge>300)` observations (`r round(100*(sum(df$MedianAge
 There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),digits=3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we kept these observations in the dataset. 
 
 **avgAnnCount:**
-There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is disproportionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 10000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
+There are `r sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)` observations (`r round(100*(sum(df$avgAnnCount>=1962 & df$avgAnnCount<1963)/(nrow(df))),2)`%) with the same value of 1962.667684. It is possible these data points are erroneous. Additionally, there are `r sum(df$avgAnnCount > 2000)` observations greater than 2000, which is disproportionately large in comparison to the bulk of values within the variable. The largest of these values are as large as >38,000 with `r sum(df$avgAnnCount > 1000)` values > 10,000. Without further information about this variable, we can not conclusively state that the values are erroneous. For this reason we kept these observations in the dataset.
 
 
 
@@ -171,7 +171,7 @@ GeoFreq[GeoFreq$Freq != 1,] # All counties listed only once
 ```
 ## Age
 
-The 30 median age observations > 300 years were set to NA.  The median age overall, for males, and for females per county all provide normal distributions. The median and mean age of females in the county is a 2-3 years greater than that for males - and both values are close to the mean as well. Barring the data issues found in the median age variable, the age data available did not raise any concerns. 
+The 30 median age observations > 300 years were set to NA.  The median age overall, for males, and for females per county all provide normal distributions. The median and mean age of females in the county is a 2-3 years greater than that for males. The age data did not raise any concerns. 
 
 ```{r}
 summary(data.frame(df$MedianAge, df$MedianAgeMale,df$MedianAgeFemale) )
@@ -199,8 +199,8 @@ boxplot(df$MedianAgeFemale,main=title[3],col=color[3],ylab=y[2],xlab=paste(c('n=
 
 ## Ethnicity
 
-Most of the counties in the USA are predominantly white as shown by the left skewed histogram tallying the number of counties by percent white. As one would expect the minority ethnicities of Black, Asian, and Other Race are right skewed indicating some counties with sizeable minority populations where `r sum(df$PctBlack >= 50)` counties had a Black population 50% or greater. With the data we have available, it appears that we'll be able to get the most insight into the impact of the prominence of Black and White races, while the small percentages of Asian and other races may not be large enough to understand the impact.
-The ethnicity data did not raise any significant concerns. 
+Most of the counties in the USA are predominantly white as shown by the negatively skewed histogram tallying the number of counties by percent white. As one would expect the minority ethnicities of Black, Asian, and Other Race are positively skewed indicating some counties with sizeable minority populations where `r sum(df$PctBlack >= 50)` counties had a Black population 50% or greater. 
+The ethnicity did not raise any concerns. 
 
 Summary Statistics:
 ```{r}
@@ -228,8 +228,6 @@ boxplot(df$PctOtherRace,main=title[4],col=color[4],ylab=y[2],xlab=paste(c('n=',s
 
 There are `r sum((df$AvgHouseholdSize<1), na.rm=TRUE)` counties reporting average household size less than 1 representing `r round(100*(sum((df$AvgHouseholdSize<1), na.rm=TRUE))/(nrow(df)),3)`% of the observations. While it is reasonable to define a household as 1 or more persons living in the same occupancy space, a conclusive definition of a household was not provided with the dataset. For this reason in conjunction with the small percentage of affected rows, we left these observations in the dataset. 
 
-Marital status appears to have a relatively normal distibution, with percent married having a slight left skew, though not a significant one. The summary statistics of these two variables are close together, so we should have fairly similar insights between both variables. 
-
 Summary Statistics:
 ```{r}
 summary(data.frame(df$AvgHouseholdSize,df$PercentMarried,  df$PctMarriedHouseholds), digits=3 )
@@ -252,7 +250,6 @@ boxplot(df$PercentMarried,main=title[1],col=color[1],ylab=y[2], ylim =yl,
 boxplot(df$PctMarriedHouseholds,main=title[3],col=color[3],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',sum(df$PctMarriedHouseholds>=0, na.rm=TRUE)),collapse=""))
 ```
-
 ## Education
 
 The variables related to education can roughly be grouped as: 
@@ -457,10 +454,9 @@ scatterplot(df$PctMarried, df$deathRate, xlab="Percentage Married",
 ```
 
 ## Race vs. Death Rate
-Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, while there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
+Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, because generally these two are more prominent. In our sample, there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
 
-The race percentage variables have significant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows. Looking at these results, it appears that the death rate grows as the black percentage grows, while it decreases slightly as the white percentage grows. This is one area that has the potential to look at secondary effects. 
-
+The race percentage variables have significant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows.
 ```{r,fig.height=8.0, fig.width=11 }
 par(mfrow=c(2,2))
 bplot_race <- function(race, racec) {
@@ -480,8 +476,9 @@ bplot_race(df$PctOtherRace, "Other")
 
 ## Age vs. Death Rate
 
-The interesting result about age compared to death rate is that the correlation is rather weak. One might guess that as a community ages, the death rate would grow. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
+The interesting result about age compared to death rate is that the correlation is rather weak. One guess that as a community ages, so do the ages. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
 
+'
 ## Education
 
 The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate. 
@@ -544,8 +541,7 @@ scatterplot(df$PctPrivateCoverage, df$deathRate, xlab="Percentage of residents w
 
 
 ## Employment
-
-Employments has appears to have one of the stronger relationships with the death rate. This would make sense, as employment offers better access to health care (and also is another area to look for secondary effects). The results here are fairly clear and follow a logical trend; the higher the percent employed, the lower the death rate. The higher the percent unemployed, the higher the death rate. 
+ 16 years or older
 
 ```{r, out.width='.49\\linewidth', fig.width=6, fig.height=4,fig.show='hold',fig.align='center'}
 par(mfrow=c(1,2))
@@ -561,7 +557,7 @@ scatterplot(df$PctUnemployed16_Over, df$deathRate, xlab="Percentage of residents
 ```
 ## Income
 
-The binned income shows a downward trend in death rate as the binned median incomes increases. This has a similar relationship that one might expect with employment. Higher income could imply better access to healthcare and health related resources, so this opens another area that could be examined for secondary effects.
+The binned income shows a downward trend in death rate as the binned median incomes increases. 
 
 Median income 
 ```{r ,fig.height=4, fig.width=12 }
@@ -617,7 +613,7 @@ To further elaborate, the two different age groups 18-24 and 25 and older did yi
 
 *Poverty and Income*
 
-Percent poverty and median income appear to be inversely related to each other in that the greater one's income the less likely one is in poverty. Poverty is the variable positively correlated with death rate and may be a good candidate variable to identify interventions to decrease this correlation. Variables positively correlated to Poverty include percent unemployed and percent Black. Both may be secondary variables to poverty because if one does not have a job one is likely to be at greater risk of becoming impoverished and being black may be related to discrimination and less opportunities.  Median Income is has several variables positively correlated with it and includes percent employed, percent private coverage, percent married household, percent college degree, and percent Asia. Having more positively correlated variables may lead to more secondary effects to investigate and may suggest poverty may be the better choice variable to inform decisions. 
+ Percent poverty and median income appear to be inversely related to each other in that the greater one's income the less likely one is in poverty. Poverty is the variable positively correlated with death rate and may be a good candidate variable to identify interventions to decrease this correlation. Variables positively correlated to Poverty include percent unemployed and percent Black. Both may be secondary variables to poverty because if one does not have a job one is likely to be at greater risk of becoming impoverished and being black may be related to discrimination and less opportunities.  Median Income is has several variables positively correlated with it and includes percent employed, percent private coverage, percent married household , percent college degree, and percent Asia. Having more positively correlated variables may lead to more secondary effects to investigate and may suggest poverty may be the better choice variable to inform decisions. 
 
 *Insurance* 
 
@@ -628,7 +624,6 @@ Public insurance is negatively correlated with private insurance, median income,
 PctBlack and PctWhite have opposite trending correlations and are negatively correlated to each other meaning that they are likely dependent on each other. In other words, a high percent of white population will have a low percent of black and vice versa. Another way to understand this is a high absence of a white population is associated with a high percent of a black population. In this manner only one variable,  PctBlack may be sufficient enough, for analysis. 
 
 *Percent Married Household*
-
 Percent Married Household is correlated with percent married, percent white, percent employed, percent employed, median income, percent employee private coverage. These underlying variables may enable the indvidual to enter marriage and hold together a household which would suggest that percent married house hold is a secondary effect variable to these variables. 
 
 # Summary and Conclusion
@@ -661,7 +656,7 @@ Insurance -  Percent of residents in a county with public insurance positively c
 
 ## County Characteristics to inform action
 
-Our findings did enable us to identify county level characteristics that can be used to inform social intervention to decrease cancer mortality rates. While we found six characteristics associated with cancer death rates, we believe some are not suited to be pursued for social intervention. The characteristics of percent married and percent black are not suitable to pursue to inform social intervention mainly because they showed weak correlations and there are characteristics with stronger correlations available. In addition, promoting marriage may be not be easy to promote and race is something one cannot change. Employment and unemployment percentages do have a strong negative and positive correlations respectively; however, we believe these are secondary to access to good insurance in the form of private vs public insurance. Employed residents likely have access to employee private insurance and unemployed residents would more likely have to rely on public coverage. 
+Our finding did enable us to identify county level characteristics that can be used to inform social intervention to decrease cancer mortality rates. While we found six characteristics associated with cancer death rates, we believe some are not suited to be pursued for social intervention. The characteristics of percent married and percent black are not suitable to pursue to inform social intervention mainly because the showed weak correlations and there are characteristics with stronger correlations available. In addition, promoting marriage may be not be easy to promote and race is something one cannot change. Employment and unemployment percentages do have a strong negative and positive correlations respectively; however, we believe these are secondary to access to good insurance in the form of private vs public insurance. Employed residents likely have access to employee private insurance and unemployed residents seems they would more likely have to rely on public coverage. 
 
 This leaves education, access to quality insurance, and poverty as the key characteristics to inform social intervention. Below is a list of possible social interventions based on our findings
 
@@ -681,7 +676,7 @@ Public Insurance has a moderate positive correlation with cancer death rates whi
 
 Further analysis with this dataset might include utilizing the average annual count of cancer cases variable (avgAnnCount). This variable can be dividing by the population variable (popEst2015) to yield a cancer rate. This can then be used as an outcome for cancer cases using the same exploratory methodology. In addition, if a cancer death to cancer rate ratio can be calculated by dividing the deathRate variable by this calculated cancer rate variable where a ratio closer to zero would indicate a cancers that do not progress to death and a ratio near one would indicate a greater number of cancers progressing to death. Since different types of cancers have different etiologies, it would be prudent to pursue data to identify the different cancer types. A low cancer death to cancer rate ratio may be more dependent on fast spreading cancers versus those that take time to progress. 
 
-In conclusion we believe Education, Poverty and Public insurance are the three areas that can inform social intervention. Further analysis on more and different data is warranted to investigate these findings in this exploratory analysis to confirm their validity and reproducibility before identifying the social interventions. These variables can then be used to measure the interventions' outcomes. 
+In conclusion we believe Education, Poverty and Public insurance are the three areas that can inform social intervention. Further analysis is warranted to investigate these findings in this exploratory analysis to confirm their validity and reproducibility before identifying the social interventions. These variables can then be used to measure the interventions' outcomes. 
 
 
 

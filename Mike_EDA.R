@@ -32,7 +32,7 @@ barplot(prop.table(table(df$RaceCat)), ylim=c(0,1),
 
 
 # Create groupings of columns I want to look at
-outcome <- c("Geography", "CaseRate", "deathRate")
+outcome <- c("Geography", "deathRate")
 
 pop <- c("popEst2015", "BirthRate")
 
@@ -121,7 +121,7 @@ cor(df_house[, c("CaseRate", "AvgHouseholdSize", "PercentMarried")])
 # Race vs. outcomes #
 #####################
 
-df_race <- df[df$CaseRate <= 2000,c(outcome, race)]
+df_race <- df[,c(outcome, race)]
 
 
 summary(df_race)
@@ -161,6 +161,11 @@ bplot_race(df_race$PctWhite,df_race$deathRate, "White", "Death")
 # Other
 bplot_race(df_race$PctOtherRace,df_race$CaseRate, "Other Race", "Case")
 bplot_race(df_race$PctOtherRace,df_race$deathRate, "Other Race", "Death")
+
+r_cor = round(cor(df$PctBlack, df$deathRate,  use = 'complete.obs'),5)
+scatterplot(df$PctBlack, df$deathRate,  xlab="Percentage Black", 
+            ylab="Death Rate",main="Cancer death rate vs. Percent Black",legend ('topleft',bty='n',
+            legend=paste('r=',r_cor) ), col=c('red','green', rgb(0,0,0,100,maxColorValue=255)))
 
 # PctBlack in a commuity doesn't seem to have a significant relationship,
 # while PctAsian seems to have a negative relationship. PctWhite is the only race
