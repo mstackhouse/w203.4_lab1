@@ -596,18 +596,25 @@ scatterplot(df$povertyPercent, df$medIncome, xlab="Percentage of residents
 
 This is a challenging dataset due to presence of multiple confounding variables - variables that can influence both the dependent (target) variable, as well as other independent variables.  
 
-The following correlation matrix includes variables that were deemed to be the 'key' variables of the dataset and showed at least moderate correlation with the target variable, deathRate.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
+To consider these types of variables, the following correlation matrix was created for variables in the dataset.  This matrix excludes *deathRate* with the intention of only showing correlation between the chosen independent variables.  The matrix was intentinally ordered to group similarly-correlated variables together.
+
+**Independent Variable Correlation Matrix**
 
 ```{r}
-cr <- cor(df[, c("PctWhite","PctBlack", "PctHS25_Over",  "PctBachDeg25_Over", "PctBachDeg18_24","PctNoHS18_24","PctPrivateCoverage",
-                  "PctEmpPrivCoverage", "PctPublicCoverage", "PctEmployed16_Over",  "PctUnemployed16_Over")], use="complete.obs")
+cr <- cor(df[, c('popEst2015', 'BirthRate', 'MedianAge', 'MedianAgeMale', 'MedianAgeFemale', 'PctWhite', 
+                  'PctBlack', 'PctAsian', 'PctOtherRace', 'AvgHouseholdSize', 'PercentMarried', 'PctMarriedHouseholds',
+                  "PctNoHS18_24", "PctHS18_24", "PctHS25_Over", "PctSomeCol18_24", "PctBachDeg18_24", "PctBachDeg25_Over",
+                  'PctPrivateCoverage', 'PctEmpPrivCoverage', 'PctPublicCoverage', 'PctEmployed16_Over', 'PctUnemployed16_Over',
+                  'medIncome', 'povertyPercent')], use="complete.obs")
 
-corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, title="All variables", method="square",
+corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, method="square",
          order="AOE")
 
 ```
 
+The correlation matrix shows in multiple ways that each variable of the dataset cannot be considered a truly *independent* variable.  For example, the variables concerning insurance and education all correlate with the other variables of that subgroup.  For example, the percent of county residents on either private or public insurance are highly correlated - a strong percentage in one shows a smaller percentage in the other.  Likewise, high percentages of high school only education result in lower percentages of college educated residents, and vice versa.  This observation suggests that no one variable is necessarily more important that the other within the subgroup, but rather these variables are measuring multiple possible outcomes on a range of related results (e.g. no high school education, high school only, college educated, etc.)
 
+The variables that consistently showed small correlations with other variable included BirthRate, popEst2015 (population), and AvgHouseholdSize.  
 
 
 # Conclusion
@@ -637,13 +644,16 @@ Our finding did enable us to identify county level characteristics that can be u
 
 This leaves education, access to quality insurance, and poverty as the key characteristics to inform social intervention. Below is a list of possible social interventions based on our findings
 
-*Education*
+**Education**
+
 Increase the quality of high school education, enable more to qualify for college or both. It is clear that higher education in the form of a college degree had the greatest correlation and a negative one at that. Earning a college degree likely places a person in better position to obtain quality employment that may come with access to employee health coverage. However, there are probably other reasons for this association and may involve the quality of the education. For example, this may be a construct for characteristics such as understanding how to prevent cancer prevention ranging from learning how to live healthy, avoiding carcinogens, understanding the dangers of smoking, and understanding how to utilize the healthcare system. All of these do not require a college degree, hence, increasing the quality of education may be a good social intervention. 
 
-*Poverty*
+**Poverty**
+
 Poverty was the highest positive correlation to cancer death. There are a lot of reasons to address poverty of people living in the USA and now preventing cancer can be added to that list. Poverty may be associated with no employment or low paying employment. Some of this may be addressed with Education but some may also point to finding ways help people get out of poverty. This may mean temporary financial assistance, finding ways to raise the wages of workers, lower the cost of living, or providing basic financial planning to empower them to save money. 
 
-*Insurance*
+**Insurance**
+
 need to add
 
 
