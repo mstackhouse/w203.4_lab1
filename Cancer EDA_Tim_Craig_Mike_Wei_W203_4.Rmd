@@ -490,7 +490,7 @@ bplot_race(df$PctOtherRace, "Other")
 
 The interesting result about age compared to death rate is that the correlation is rather weak. One guess that as a community ages, so do the ages. Our sample contradicts this assumption, with the Median Age having a correlation of only `r round(cor(df$deathRate, df$MedianAge,  use = 'complete.obs'),5)`. We see similar values in Median Age of Males (`r round(cor(df$deathRate, df$MedianAgeMale,  use = 'complete.obs'),5)`) and Median Age of Females (`r round(cor(df$deathRate, df$MedianAgeFemale,  use = 'complete.obs'),5)`). 
 
-
+'
 ## Education
 
 The first thing to note about education is that the correlations to death rate of the 18-24 age variables were generally weaker compared to the broader "over 25" age variables.  One weakness of the dataset is that the absolute quantities of these variables are unknown - only the percentage is known.  For that reason, it may be safe to presume that the 18-24 age variables are prone to more variation and worse correlation to the dependent variable, death rate. 
@@ -607,4 +607,44 @@ corrplot(corr=cr, type="upper", tl.col="black", tl.cex = .5, tl.srt = 45, title=
 
 ```
 
+
+
+
 # Conclusion
+
+
+The dataset contained 3047 US counties and our team found this to have high enough quality to provide insights to answer our research questions despite some the missing data and data points suspected to be erroneous. Below is summary of the issues
+
+2285 missing values for variable PctSomeCol18_24 (75% of observations)
+30 erroneous MedianAge values (1%)
+61 potentially erroneous AvgHouseholdSize (2%)
+206 potentially erroneous avgAnnCount (7%)
+152 missing values PctEmployed16_Over (5%)
+
+The 75% missing values in PctSomeCol18_24 did weaken this variable's value to in our analysis. MedianAge and  AvgHouseholdSize did not show any associations with deathRate. The avgAnnCount was not focused on in this study because death rate was the target variable and not incidence of cancer. The PctEmployed16_Over did prove to be a variable showing association with deathRate despite the missing values. 
+
+Per our first research question key county level characteristics associated with mortality rates from cancer, our team found 6 areas in the dataset that is discussed below.  
+Education - Percent of residents with a HS degree positively correlated with greater cancer death rates. In contrast, higher percentages of residents with a bachelor's degree correlated with lower death rates. This was observed in the 18-24 residents (r, BS: -0.2878 vs HS: 0.2620)  and more pronounced in the 25 years or older residents (r, BS -0.4855 vs HS: 0.4046).  
+Percent residents in poverty had a moderate correlation with death rate (r = 0.4294). Not surprising, median income was negatively correlated (r = xxxx)
+Insurance -  Percent of residents in a county with public insurance positively correlated with cancer deathrate (r = 0.4046)  in contrast to those counties with higher percent of residents with private insurance (r= -0.3861). Employee private coverage had a less pronounced negative correlation. We identified the percent of residents with employee private coverage to be a possible secondary effort included in the percent with private coverage. 
+Percent employment was had a moderate negative correlation (r= -0.4120) and not surprisingly percent unemployment was positively correlated (r= 0.3784). Percent employment may be a secondary effect of private insurance because employed individual may have access to employee benefits including health insurance. We noted employment as a secondary effect because percent residents with private coverage had a greater correlation than percent with employee private insurance.
+Race showed a weak positive correlation for counties with percent black with death rate (r = 0.2570) and a negative correlation for the percent white in a county. <<The weak correlation indicates it is likely a secondary effect as percent black was associated with poverty and public insurance. >>
+Percent Married showed a weak negative correlation  (r=0.2933) suggesting that being in a relationship may be helpful in preventing cancer death. 
+
+
+
+Our finding did enable us to identify county level characteristics that can be used to inform social intervention to decrease cancer mortality rates. While we found six characteristics associated with cancer death rates, we believe some are not suited to be pursued for social intervention. The characteristics of percent married and percent black are not suitable to pursue to inform social intervention mainly because the showed weak correlations and there are characteristics with stronger correlations available. In addition, promoting marriage may be not be easy to promote and race is something one cannot change. Employment and unemployment percentages do have a strong negative and positive correlations respectively; however, we believe these are secondary to access to good insurance in the form of private vs public insurance. Employed residents likely have access to employee private insurance and unemployed residents seems they would more likely have to rely on public coverage. 
+
+This leaves education, access to quality insurance, and poverty as the key characteristics to inform social intervention. Below is a list of possible social interventions based on our findings
+
+*Education*
+Increase the quality of high school education, enable more to qualify for college or both. It is clear that higher education in the form of a college degree had the greatest correlation and a negative one at that. Earning a college degree likely places a person in better position to obtain quality employment that may come with access to employee health coverage. However, there are probably other reasons for this association and may involve the quality of the education. For example, this may be a construct for characteristics such as understanding how to prevent cancer prevention ranging from learning how to live healthy, avoiding carcinogens, understanding the dangers of smoking, and understanding how to utilize the healthcare system. All of these do not require a college degree, hence, increasing the quality of education may be a good social intervention. 
+
+*Poverty*
+Poverty was the highest positive correlation to cancer death. There are a lot of reasons to address poverty of people living in the USA and now preventing cancer can be added to that list. Poverty may be associated with no employment or low paying employment. Some of this may be addressed with Education but some may also point to finding ways help people get out of poverty. This may mean temporary financial assistance, finding ways to raise the wages of workers, lower the cost of living, or providing basic financial planning to empower them to save money. 
+
+*Insurance*
+need to add
+
+
+
