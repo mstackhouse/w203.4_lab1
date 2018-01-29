@@ -123,26 +123,23 @@ summary(data.frame(df$deathRate, df$avgAnnCount) )
 ```
 
 ```{r,fig.height=5, fig.width=10 }
-layout(matrix(c(1,2,0,0,3,4,5,6),2,4,byrow=T)) #Switched this to separate incidence and mortality
+layout(matrix(c(1,2,0,0,3,4,5,6),2,4,byrow=T)) 
 color = c('lightskyblue1', 'gray')
-
 title = 'Cancer Death Rate per County'
 hist(df$deathRate, main= title ,breaks =30, ylab = 'number of counties', 
      xlab = ''  ,col = color[1])
 boxplot( df$deathRate,main = title, col = color, ylab = 'number of counties'  , 
-         xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
-
+    xlab  = paste(c('n = ' ,  sum(df$deathRate>0, na.rm=TRUE) ),collapse= ""))
 title = 'Average Annual Count of Cancer'
 hist(df$avgAnnCount,main= title ,breaks =30, ylab = 'number of counties', 
      xlab = 'Avg Annual Count',col =color[2])
 boxplot( df$avgAnnCount,main = title  ,col =color, ylab = 'Avg Annual Count' , 
-         xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
-
+    xlab  = paste(c('n = ' , sum(df$avgAnnCount>0, na.rm=TRUE) ), collapse= ""))
 title = 'log Avg Annual Count of Cancers'
 hist(log(df$avgAnnCount,10),main= title ,breaks =30, ylab = 'number of counties', 
-     xlab = 'log10 Avg Annual Count',col =color[2])
+  xlab = 'log10 Avg Annual Count',col =color[2])
 boxplot( log(df$avgAnnCount,10),main = title  ,col =color, ylab = 'log10 Avg Annual Count' , 
-         xlab  = paste(c('n = ' , sum(log(df$avgAnnCount,10)>0, na.rm=TRUE) ), collapse= ""))
+   xlab  = paste(c('n = ' , sum(log(df$avgAnnCount,10)>0, na.rm=TRUE) ), collapse= ""))
 ```
 
 
@@ -210,7 +207,7 @@ Summary Statistics:
 summary(data.frame(df$PctWhite, df$PctBlack, df$PctAsian, df$PctOtherRace), digits=3 )
 ```
 
-```{r,fig.height=4.5, fig.width=10 }
+```{r,fig.height=5, fig.width=10 }
 par(mfrow=c(2,4))
 color = c('lightskyblue1','gray','khaki1', 'darkseagreen1')
 title = c('White', 'Black', 'Asian', 'Other Race')
@@ -253,7 +250,6 @@ boxplot(df$PercentMarried,main=title[1],col=color[1],ylab=y[2], ylim =yl,
 boxplot(df$PctMarriedHouseholds,main=title[3],col=color[3],ylab=y[2],ylim =yl,
         xlab=paste(c('n=',sum(df$PctMarriedHouseholds>=0, na.rm=TRUE)),collapse=""))
 ```
-
 ## Education
 
 The variables related to education can roughly be grouped as: 
@@ -286,7 +282,6 @@ hist(df$PctHS18_24       ,main= title[2],breaks=30, ylab=y[1], xlab = x[1],col =
 hist(df$PctBachDeg18_24  ,main= title[3],breaks=30, ylab=y[1], xlab = x[1],col =color[3])
 hist(df$PctHS25_Over     ,main= title[4],breaks=30, ylab=y[1], xlab = x[1],col =color[4])
 hist(df$PctBachDeg25_Over,main= title[5],breaks=30, ylab=y[1], xlab = x[1],col =color[5])
-
 boxplot(df$PctNoHS18_24,     main=title[1],col=color[1],ylab=y[2],ylim=yl,
         xlab=paste(c('n=',   sum(df$PctNoHS18_24>=0, na.rm=TRUE)),collapse=""))
 boxplot(df$PctHS18_24,       main=title[2],col=color[2],ylab=y[2],ylim=yl,
@@ -371,31 +366,29 @@ Median income was provided for each county and assigned a bin containing 302-306
 
 Percent of residents below the poverty level was also included the dataset and presents a right skew as well indicating select counties have sizeable portion of their residents in this condition. The poverty level is something all counties must address where if one interprets the inter-quartile range (IQR) of the boxplot, 50% of the counties have 12.2- 20.4% of their residents considered impoverished.  This means that the 25% most impoverished counties have 20.4% to as high as 47.4% of their residents in poverty. In terms of analysis, the income and poverty data did not raise any concerns. 
 
-
-The binned income 
 ```{r ,fig.height=4, fig.width=12 }
 df$binnedInc <- factor(df$binnedInc , levels = c('[22640, 34218.1]', '(34218.1, 37413.8]', '(37413.8, 40362.7]', '(40362.7, 42724.4]', '(42724.4, 45201]', '(45201, 48021.6]', '(48021.6, 51046.4]' , '(51046.4, 54545.6]' , '(54545.6, 61494.5]' ,'(61494.5, 125635]' ))
 summary(df$binnedInc)
 ```
-```{r ,fig.height=3, fig.width=12 }
+```{r ,fig.height=4, fig.width=12 }
 boxplot(df$medIncome ~ df$binnedInc, data = df, cex.axis = .58 ,main = "Income categories", ylab = "Median Income", col='lightskyblue1')
 ```
 
 ```{r,fig.height=2.5, fig.width=10 }
 par(mfrow=c(1,4))
 color = 'lightskyblue1'
-
 title =  'Median Income'
 hist(df$medIncome, main= title ,breaks =30, ylab = 'Number of Counties', xlab = ''  ,col = color)
-boxplot( df$medIncome,main = title, col = color, ylab = 'Median Income'  , xlab  = paste(c('n = ' ,  sum(df$medIncome>=0, na.rm=TRUE) ),collapse= ""))
-
+boxplot( df$medIncome,main = title, col = color, ylab = 'Median Income'  , xlab  = paste(c('n = ',sum(df$medIncome>=0, na.rm=TRUE) ),collapse= ""))
 color = 'gray'
 title = 'Percent below Poverty Level'
-hist(df$povertyPercent,main= title ,breaks =30, ylab = 'Number of Counties', xlab = 'Avg Annual Count',col =color)
+hist(df$povertyPercent,main= title,breaks =30,ylab ='Number of Counties',xlab='Avg Annual Count',col=color)
 boxplot( df$povertyPercent,main = title  ,col =color, ylab = 'Percent below Poverty Level' , xlab  = paste(c('n = ' , sum(df$povertyPercent>0, na.rm=TRUE) ), collapse= ""))
 ``` 
 
 # Analysis of Key Relationships
+
+All independent varialbes were analyze for linear correleation with the deathRate. Those with a correlation were investigated further using a scatterplot or a boxplot comparison.
 
 Table below show below shows the correlation coefficients for r
 ```{r, collapse = TRUE, , tidy =TRUE}
@@ -464,24 +457,19 @@ scatterplot(df$PctMarried, df$deathRate, xlab="Percentage Married",
 Race has some interesting interactions with Death Rate in the fact that relationships differ with the prominence of a single race in a county. All races except for Black have a negative correlation, though a weak one, with the death rate. Conversely, the Black has a positive correlation that is stronger than the other correlations. We can gain the most insight looking at white and black communities, because generally these two are more prominent. In our sample, there is not enough data to gain any valuable insight into prominent Asian communities or communities of other races.
 
 The race percentage variables have significant skew to their distributions, so to better represent this data, have chosen to display them in box plots with binned percentages of each quartile. This allows us to examine how the mean changes through each quartile and better see the relationship as the concentration of each race in a county grows.
-
-
 ```{r,fig.height=8.0, fig.width=11 }
 par(mfrow=c(2,2))
 bplot_race <- function(race, racec) {
   race_bin = cut(race, breaks = c(0, 25, 50, 75, 100), label = 
                  c("LOW", "LOW-MID", "MID-HIGH", "HIGH"))
-  
   boxplot(df$deathRate ~ race_bin, data=df, 
           main = paste("Percent ", racec, " Split by 25%"),
           ylab="Death Rate")
 }
-
 bplot_race(df$PctBlack, "Black")
 bplot_race(df$PctWhite, "White")
 bplot_race(df$PctAsian, "Asian")
 bplot_race(df$PctOtherRace, "Other")
-
 ```
 
 
@@ -618,24 +606,27 @@ The variables that consistently showed small correlations with other variable in
 
 The analysis of key relationships identified six areas where a correlation to the target variable deathRate can be observed. Below are further discussions on each grouping in preparation of identifying characteristics associated with cancer death rate to inform social intervention.
 
+
 *Education*
+
 To further elaborate, the two different age groups 18-24 and 25 and older did yield different correlations and as mentioned one may be a secondary effect of the other. While the 25 or older percentages may have yielded higher correlations, these variables may be secondary to the 18-24 percentages. For example,  if a county school district has a tradition of good schools preparing their students for college, then the high percentages in the PctBachDeg18_24 variable  may be more informative to identify interventions that can be applied to the counties with low percentages in the PctBachDeg18_24.
 
 *Poverty and Income*
+
  Percent poverty and median income appear to be inversely related to each other in that the greater one's income the less likely one is in poverty. Poverty is the variable positively correlated with death rate and may be a good candidate variable to identify interventions to decrease this correlation. Variables positively correlated to Poverty include percent unemployed and percent Black. Both may be secondary variables to poverty because if one does not have a job one is likely to be at greater risk of becoming impoverished and being black may be related to discrimination and less opportunities.  Median Income is has several variables positively correlated with it and includes percent employed, percent private coverage, percent married household , percent college degree, and percent Asia. Having more positively correlated variables may lead to more secondary effects to investigate and may suggest poverty may be the better choice variable to inform decisions. 
 
+*Insurance* 
 
-**Insurance**
+Public insurance is negatively correlated with private insurance, median income, and percent employed and percent with college degrees. This might be related to the converse of public insurance being private insurance where those with private insurance is secondary to being able to afford private insurance, having good paying job which may have been enabled with a college degree. In contrast, public insurance is associated with poverty, birth rate, and age. Poverty may be one underlying reason because impoverished individuals may not be able to afford quality healthcare. The positive correlation with age may indicate medicare if that is considered a public coverage. However, age in itself had not correlation with the death rate which may point to that the poverty association may mean that those who are dying of cancer have public coverage and are poor. Birth rate suggests the more kids one has the more likely one is to be on public insurance. 
 
-**Race**
+*Race*
 
-**Marriage**
+PctBlack and PctWhite have opposite trending correlations and are negatively correlated to each other meaning that they are likely dependent on each other. In other words, a high percent of white population will have a low percent of black and vice versa. Another way to understand this is a high absence of a white population is associated with a high percent of a black population. In this manner only one variable,  PctBlack may be sufficient enough, for analysis. 
 
+*Percent Married Household*
+Percent Married Household is correlated with percent married, percent white, percent employed, percent employed, median income, percent employee private coverage. These underlying variables may enable the indvidual to enter marriage and hold together a household which would suggest that percent married house hold is a secondary effect variable to these variables. 
 
-
-
-# Conclusion
-
+# Summary and Conclusion
 
 The dataset contained 3047 US counties and our team found this to have high enough quality to provide insights to answer our research questions despite some the missing data and data points suspected to be erroneous. Below is summary of the issues
 
@@ -647,15 +638,23 @@ The dataset contained 3047 US counties and our team found this to have high enou
 
 The 75% missing values in PctSomeCol18_24 did weaken this variable's value to in our analysis. MedianAge and  AvgHouseholdSize did not show any associations with deathRate. The avgAnnCount was not focused on in this study because death rate was the target variable and not incidence of cancer. The PctEmployed16_Over did prove to be a variable showing association with deathRate despite the missing values. 
 
-Per our first research question key county level characteristics associated with mortality rates from cancer, our team found 6 areas in the dataset that is discussed below.  
-Education - Percent of residents with a HS degree positively correlated with greater cancer death rates. In contrast, higher percentages of residents with a bachelor's degree correlated with lower death rates. This was observed in the 18-24 residents (r, BS: -0.2878 vs HS: 0.2620)  and more pronounced in the 25 years or older residents (r, BS -0.4855 vs HS: 0.4046).  
-Percent residents in poverty had a moderate correlation with death rate (r = 0.4294). Not surprising, median income was negatively correlated (r =-0.4286)
-Insurance -  Percent of residents in a county with public insurance positively correlated with cancer deathrate (r = 0.4046)  in contrast to those counties with higher percent of residents with private insurance (r= -0.3861). Employee private coverage had a less pronounced negative correlation. We identified the percent of residents with employee private coverage to be a possible secondary effort included in the percent with private coverage. 
-Percent employment was had a moderate negative correlation (r= -0.4120) and not surprisingly percent unemployment was positively correlated (r= 0.3784). Percent employment may be a secondary effect of private insurance because employed individual may have access to employee benefits including health insurance. We noted employment as a secondary effect because percent residents with private coverage had a greater correlation than percent with employee private insurance.
-Race showed a weak positive correlation for counties with percent black with death rate (r = 0.2570) and a negative correlation for the percent white in a county. <<The weak correlation indicates it is likely a secondary effect as percent black was associated with poverty and public insurance. >>
-Percent Married showed a weak negative correlation  (r=0.2933) suggesting that being in a relationship may be helpful in preventing cancer death. 
+Per our first research question key county level characteristics associated with mortality rates from cancer, our team found 6 areas in the dataset.  
+
+*Education:*  Percent of residents with a HS degree positively correlated with greater cancer death rates. In contrast, higher percentages of residents with a bachelor's degree correlated with lower death rates. This was observed in the 18-24 residents (r, BS: -0.2878 vs HS: 0.2620)  and more pronounced in the 25 years or older residents (r, BS -0.4855 vs HS: 0.4046).  
+
+*Poverty* Percent residents in poverty had a moderate correlation with death rate (r = 0.4294). Not surprising, median income was negatively correlated (r =-0.4286)
+Insurance -  Percent of residents in a county with public insurance positively correlated with cancer deathrate (r = 0.4046)  in contrast to those counties with higher percent of residents with private insurance (r= -0.3861). 
+
+*Insurance* Employee private coverage had a less pronounced negative correlation. We identified the percent of residents with employee private coverage to be a possible secondary effort included in the percent with private coverage. 
+
+*Employment*Percent employment was had a moderate negative correlation (r= -0.4120) and not surprisingly percent unemployment was positively correlated (r= 0.3784). Percent employment may be a secondary effect of private insurance because employed individual may have access to employee benefits including health insurance. We noted employment as a secondary effect because percent residents with private coverage had a greater correlation than percent with employee private insurance.
+
+*Race* showed a weak positive correlation for counties with percent black with death rate (r = 0.2570) and a negative correlation for the percent white in a county. <<The weak correlation indicates it is likely a secondary effect as percent black was associated with poverty and public insurance. 
+
+*Marriage*Percent Married showed a weak negative correlation  (r=0.2933) suggesting that being in a relationship may be helpful in preventing cancer death. 
 
 
+## County Characteristics to inform action
 
 Our finding did enable us to identify county level characteristics that can be used to inform social intervention to decrease cancer mortality rates. While we found six characteristics associated with cancer death rates, we believe some are not suited to be pursued for social intervention. The characteristics of percent married and percent black are not suitable to pursue to inform social intervention mainly because the showed weak correlations and there are characteristics with stronger correlations available. In addition, promoting marriage may be not be easy to promote and race is something one cannot change. Employment and unemployment percentages do have a strong negative and positive correlations respectively; however, we believe these are secondary to access to good insurance in the form of private vs public insurance. Employed residents likely have access to employee private insurance and unemployed residents seems they would more likely have to rely on public coverage. 
 
@@ -671,8 +670,9 @@ Poverty was the highest positive correlation to cancer death. There are a lot of
 
 **Insurance**
 
-Public Insurance shamefully has a moderate positive correlation with cancer death rates which is in stark contrast to private insurance moderate negative correlation. Insurance may be viewed as a construct for quality of health care services. It is generally known that healthcare providers do not accept all health care insurance. This is a place to explore the differences between private and public health coverage and identify what might be improved in the public plans. 
+Public Insurance has a moderate positive correlation with cancer death rates which is in stark contrast to private insurance moderate negative correlation. Insurance may be viewed as a construct for quality of health care services. It is generally known that healthcare providers do not accept all health care insurance. This is a place to explore the differences between private and public health coverage and identify what might be improved in the public plans. 
 
+**Analyses to further pursue**
 
 Further analysis with this dataset might include utilizing the average annual count of cancer cases variable (avgAnnCount). This variable can be dividing by the population variable (popEst2015) to yield a cancer rate. This can then be used as an outcome for cancer cases using the same exploratory methodology. In addition, if a cancer death to cancer rate ratio can be calculated by dividing the deathRate variable by this calculated cancer rate variable where a ratio closer to zero would indicate a cancers that do not progress to death and a ratio near one would indicate a greater number of cancers progressing to death. Since different types of cancers have different etiologies, it would be prudent to pursue data to identify the different cancer types. A low cancer death to cancer rate ratio may be more dependent on fast spreading cancers versus those that take time to progress. 
 
